@@ -1,94 +1,79 @@
 import React, { useState } from "react";
 import { Dropdown, Menu } from "antd";
-import { DownOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import "./Footer.scss";
 
 const Footer = () => {
-  const [visible, setVisible] = useState(false);
-
-  // Menu cho "Hỗ trợ khách hàng"
-  const supportMenu = (
-    <Menu className="dropdown-menu">
-      <Menu.Item key="1">Hướng dẫn chọn cỡ giày</Menu.Item>
-      <Menu.Item key="2">Chính sách đổi trả</Menu.Item>
-      <Menu.Item key="3">Thanh toán, giao nhận</Menu.Item>
-      <Menu.Item key="4">Chính sách bảo mật</Menu.Item>
-      <Menu.Item key="5">Câu hỏi thường gặp</Menu.Item>
-      <Menu.Item key="6">Chính sách khách hàng thân thiết</Menu.Item>
-      <Menu.Item key="7">Hướng dẫn mua hàng Online</Menu.Item>
-    </Menu>
-  );
-
-  // Menu cho "Về Juno"
-  const aboutMenu = (
-    <Menu className="dropdown-menu">
-      <Menu.Item key="1">Giới thiệu</Menu.Item>
-      <Menu.Item key="2">Liên hệ</Menu.Item>
-      <Menu.Item key="3">Tin tức Juno</Menu.Item>
-      <Menu.Item key="4">Thông tin thị trường</Menu.Item>
-      <Menu.Item key="5">Cơ hội làm việc tại Juno</Menu.Item>
-    </Menu>
-  );
-
-  // Hàm toggle dropdown
-  const toggleDropdown = () => {
-    setVisible(!visible);
-  };
-
   return (
-    <footer className="bg-gray-100 py-4">
-      <div className="container mx-auto flex justify-between items-center px-4">
-        {/* Hỗ trợ khách hàng */}
-        <Dropdown
-          overlay={supportMenu}
-          trigger={["click"]}
-          placement="bottomLeft"
-          open={visible}
-          onOpenChange={toggleDropdown}
-          overlayStyle={{ position: "absolute", top: "auto", bottom: "auto" }}
-        >
-          <a
-            className="text-black font-semibold flex items-center hover:text-gray-700"
-            onClick={(e) => e.preventDefault()}
-          >
-            HỖ TRỢ KHÁCH HÀNG <DownOutlined className="ml-2" />
-          </a>
-        </Dropdown>
+    <footer className="bg-gray-100 py-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-4 gap-4 text-sm">
+        {/* Online Shopping */}
+        <div>
+          <h3 className="font-bold mb-2">
+            Gọi Mua Hàng Online (08:00 - 21:00 mỗi ngày)
+          </h3>
+          <p className="text-xl font-bold text-blue-500">1800 1162</p>
+          <p>Tất cả các ngày trong tuần (Trừ Tết Âm Lịch)</p>
+          <h3 className="font-bold mt-4">Góp Ý & Khiếu Nại (08:30 - 20:30)</h3>
+          <p className="text-xl font-bold text-blue-500">1800 1160</p>
+          <p>Tất cả các ngày trong tuần (Trừ Tết Âm Lịch)</p>
+        </div>
 
-        {/* Về Juno */}
-        <Dropdown
-          overlay={aboutMenu}
-          trigger={["click"]}
-          placement="bottomRight"
-          open={visible}
-          onOpenChange={toggleDropdown}
-          overlayStyle={{ position: "absolute", top: "auto", bottom: "auto" }}
-        >
-          <a
-            className="text-black font-semibold flex items-center hover:text-gray-700"
-            onClick={(e) => e.preventDefault()}
-          >
-            VỀ JUNO <DownOutlined className="ml-2" />
-          </a>
-        </Dropdown>
-      </div>
-      {/* Author  */}
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-2 text-xs sm:text-sm">
-        <div className="flex space-x-4">
-          <p>Đặng Gia Bảo- DH52108711</p>
-          <p>Hà Trần Hoàng Anh- DH52108862</p>
-        </div>
-        <div className="flex items-center space-x-2">
+        {/* Showroom */}
+        <div>
+          <h3 className="font-bold mb-2">Hệ Thống Showroom</h3>
           <img
-            alt="Blue checkmark icon"
-            className="w-5 h-5"
-            height={20}
-            src="https://storage.googleapis.com/a1aa/image/4fdd265a-f56b-480c-9289-7add1accab53.jpg"
-            width={20}
+            src="https://via.placeholder.com/200x150"
+            alt="Showroom"
+            className="w-full h-32 object-cover"
           />
-          <span>Powered by Haravan</span>
+          <a href="#" className="text-blue-500 hover:underline">
+            Xem địa chỉ hệ thống showroom →
+          </a>
         </div>
+
+        {/* Fanpage */}
+        <div>
+          <h3 className="font-bold mb-2">Fanpage Của Chúng Tôi</h3>
+          <img
+            src="https://via.placeholder.com/200x100"
+            alt="Fanpage"
+            className="w-full h-20 object-cover"
+          />
+          <div className="flex space-x-2 mt-2">
+            <a href="#" className="text-blue-500">
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" className="text-pink-500">
+              <i className="fab fa-instagram"></i>
+            </a>
+            <a href="#" className="text-red-500">
+              <i className="fab fa-youtube"></i>
+            </a>
+            <a href="#" className="text-black">
+              <i className="fab fa-tiktok"></i>
+            </a>
+          </div>
+        </div>
+
+        {/* Placeholder */}
+        <div></div>
+      </div>
+
+      {/* Footer Links */}
+      <div className="max-w-6xl mx-auto mt-4 flex justify-between text-sm">
+        <div>
+          <a href="#" className="text-gray-600 hover:underline">
+            Hỗ Trợ Khách Hàng →
+          </a>
+          <span className="mx-2">|</span>
+          <a href="#" className="text-gray-600 hover:underline">
+            Về Juno →
+          </a>
+        </div>
+        <p className="text-gray-600">
+          © 2019 Công ty CP Sản Xuất Fashion Group
+        </p>
       </div>
     </footer>
   );
