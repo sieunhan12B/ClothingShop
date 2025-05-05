@@ -1,11 +1,83 @@
-import React from "react";
+import React, { useContext } from "react";
+import InputCustom from "../../components/Input/InputCustom";
+import { Link, useNavigate } from "react-router-dom";
+import { path } from "../../common/path";
+import { useFormik } from "formik";
+import * as yup from "yup";
+import { authService } from "../../services/auth.service";
+import { NotificationContext } from "../../App";
+import { setLocalStorage } from "../../utils/utils";
 
 const LoginPage = () => {
+  const { showNotification } = useContext(NotificationContext);
+  const navigate = useNavigate();
+
+  const { handleSubmit, handleChange, values, errors, touched, handleBlur } =
+    useFormik({
+      initialValues: {
+        email: "",
+        password: "",
+      },
+      validationSchema: yup.object({
+        email: yup
+          .string()
+          .required("Email không được để trống")
+          .email("Email không đúng định dạng"),
+        password: yup.string().required("Mật khẩu không được để trống"),
+      }),
+      onSubmit: (values) => {
+        authService
+          .logIn(values)
+          .then((res) => {
+            console.log("API Response:", res.data);
+            // Linh hoạt lấy dữ liệu người dùng từ response
+            const responseData = res.data;
+            let userData =
+              responseData.data?.user || responseData.result || responseData;
+            let accessToken =
+              responseData.data?.accessToken ||
+              responseData.result?.accessToken;
+
+            // Đảm bảo userData có các trường cần thiết
+            const user = {
+              id_user: userData.id_user || userData.id,
+              fullname: userData.fullname || userData.hoTen || userData.name,
+              email: userData.email,
+              phone_number:
+                userData.phone_number || userData.soDT || userData.phone,
+              role: userData.role || userData.maLoaiNguoiDung || "user",
+              created_at: userData.created_at || new Date().toISOString(),
+            };
+            console.log("User Data to Save:", user);
+
+            // Lưu user vào localStorage
+            setLocalStorage("user", user);
+            // Lưu accessToken riêng (nếu có)
+            if (accessToken) {
+              setLocalStorage("accessToken", accessToken);
+            }
+            showNotification("Đăng nhập thành công", "success");
+            setTimeout(() => {
+              navigate(path.homePage);
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Login Error:", err.response?.data || err.message);
+            showNotification(
+              err.response?.data?.message || "Đăng nhập thất bại",
+              "error"
+            );
+          });
+      },
+    });
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
       {/* Header */}
       <header className="flex justify-between items-center p-4 border-b">
-        <div className="text-3xl font-bold text-red-500">JUNO</div>
+        <Link to="/" className="text-3xl font-bold text-red-500">
+          JUNO
+        </Link>
         <nav className="space-x-4">
           <a href="#" className="text-sm uppercase hover:underline">
             Hàng Mới
@@ -20,65 +92,56 @@ const LoginPage = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center py-10">
-        <h1 className="text-2xl font-bold mb-4">Đăng Nhập</h1>
-        <p className="text-center text-sm mb-6 max-w-md">
-          Đăng nhập để tích điểm và nhận ưu đãi thành viên khi mua hàng. Nhập số
-          điện thoại để tiếp tục hoặc đăng nhập bằng tài khoản Juno.
-        </p>
+      <div className="form-login flex items-center justify-center min-h-screen bg-white">
+        {/* Phần form đăng nhập */}
+        <div className="relative w-full max-w-[500px] p-4 md:p-8 bg-white/90 border border-gray-300 rounded-lg shadow-md backdrop-blur-sm">
+          <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
 
-        {/* Form */}
-        <div className="w-full max-w-sm">
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
-              Số điện thoại của bạn <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Vui lòng nhập số điện thoại của bạn để đăng ký thành viên"
-              className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <InputCustom
+              labelContent="Email"
+              placeholder="Nhập email của bạn"
+              typeInput="email"
+              name="email"
+              value={values.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.email}
+              touched={touched.email}
             />
-          </div>
-          <button className="w-full bg-black text-white py-3 rounded hover:bg-gray-800">
-            Tiếp Tục
-          </button>
-        </div>
+            <InputCustom
+              labelContent="Mật khẩu"
+              placeholder="Nhập mật khẩu của bạn"
+              typeInput="password"
+              name="password"
+              value={values.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.password}
+              touched={touched.password}
+            />
+            <div className="flex justify-end">
+              
+            </div>
 
-        {/* Social Login */}
-        <div className="flex items-center my-6 w-full max-w-sm">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">hoặc đăng nhập với</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
+            <button
+              type="submit"
+              className="w-full bg-black text-white font-semibold py-2 rounded-lg hover:bg-gray-200 hover:text-black transition-colors"
+            >
+              Đăng nhập
+            </button>
+            <div className="text-center space-x-2 mt-2">
+              <span>Bạn chưa có tài khoản?</span>
+              <Link
+                to={path.signUp}
+                className="font-bold text-blue-500 hover:underline"
+              >
+                Đăng ký
+              </Link>
+            </div>
+          </form>
         </div>
-        <div className="flex space-x-4">
-          <button className="flex items-center justify-center w-12 h-12 border rounded-full hover:bg-gray-100">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-              alt="Facebook"
-              className="w-6 h-6"
-            />
-          </button>
-          <button className="flex items-center justify-center w-12 h-12 border rounded-full hover:bg-gray-100">
-            <img
-              src="https://th.bing.com/th/id/OIP.HgH-NjiOdFOrkmwjsZCCfAHaHl?rs=1&pid=ImgDetMain"
-              alt="Google"
-              className="w-6 h-6"
-            />
-          </button>
-        </div>
-
-        <p className="text-center text-sm mt-6">
-          Bằng việc đăng nhập, bạn đã đồng ý với{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Điều Khoản Dịch Vụ
-          </a>{" "}
-          &{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Chính Sách Bảo Mật
-          </a>{" "}
-          của Juno
-        </p>
-      </main>
+      </div>
 
       {/* Footer */}
       <footer className="bg-gray-100 py-6">

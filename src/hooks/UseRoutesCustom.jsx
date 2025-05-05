@@ -6,10 +6,12 @@ import HomeTemplate from "../templates/HomeTemplate/HomeTemplate.jsx";
 import ErrorPage from "../pages/ErrorPage/ErrorPage.jsx";
 import ProductPage from "../pages/ProductPage/ProductPage.jsx";
 import LoginPage from "../pages/LoginPage/LoginPage.jsx";
+import SignUpPage from "../pages/SignUpPage/SignUpPage.jsx";
 import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage.jsx";
 import AdminTemplate from "../templates/AdminTemplate/AdminTemplate.jsx";
 import ManagerUserPage from "../pages/ManagerUserPage/ManagerUserPage.jsx";
 import ManagerProductPage from "../pages/ManagerProductPage/ManagerProductPage.jsx";
+import MyAccountPage from "../pages/MyAccountPage/MyAccountPage.jsx";
 
 const UseRoutesCustom = () => {
   const routes = useRoutes([
@@ -28,6 +30,9 @@ const UseRoutesCustom = () => {
         {
           path: path.productDetailPage,
           element: <ProductDetailPage />,
+        },{
+          path: path.myAccount,
+          element: <MyAccountPage />,
         },
       ],
     },
@@ -39,6 +44,7 @@ const UseRoutesCustom = () => {
           path: path.managerUserPage,
           element: <ManagerUserPage />,
         },
+
         {
           path: path.managerProductPage,
           element: <ManagerProductPage />,
@@ -52,6 +58,11 @@ const UseRoutesCustom = () => {
     {
       path: path.logIn,
       element: <LoginPage />,
+    },
+    ,
+    {
+      path: path.signUp,
+      element: <SignUpPage />,
     },
   ]);
   return routes;

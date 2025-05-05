@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { UserOutlined } from "@ant-design/icons";
 import { path } from "../../common/path";
 import { Link } from "react-router-dom";
+import UserMenu from "../UserMenu/UserMenu";
+import "antd/dist/reset.css";
 const Header = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   return (
     <header className="flex justify-between items-center p-4 border-b">
-      <div className="text-3xl font-bold text-red-500">JUNO</div>
+      <Link to="/" className="text-3xl font-bold text-red-500">
+        JUNO
+      </Link>
       <nav className="flex-1 flex justify-center items-center space-x-4">
         <Link to={"/"} className="text-sm uppercase hover:underline">
           Hàng Mới
-        </Link>
+        </Link> 
         <Link
           to={path.productPage}
           className="text-sm uppercase hover:underline"
@@ -50,10 +53,9 @@ const Header = () => {
           )}
           <i className="fas fa-shopping-cart"></i>
         </div>
-        <Link to={path.logIn}>
-          <UserOutlined style={{ fontSize: "20px", cursor: "pointer" }} />
-        </Link>
+        <UserMenu to={path.logIn} iconStyle={{ fontSize: "20px", cursor: "pointer" }} />
       </div>
+      
     </header>
   );
 };
