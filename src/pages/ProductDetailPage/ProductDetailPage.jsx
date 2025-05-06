@@ -1,28 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { sanPhamService } from "../../services/product.service";
+import { Image } from "antd";
 
 const ProductDetailPage = () => {
-  const relatedProducts = [
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Túi Xách Vitamin Sea...",
-      price: "549.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Giày Sandal Đế Dùa...",
-      price: "219.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Giày Sandal Đế Dùa...",
-      price: "219.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Giày Sandal Đế Dùa...",
-      price: "219.000đ",
-    },
-  ];
+  const { id_product } = useParams();
+  const [product, setProduct] = useState(null); // null để kiểm tra dữ liệu có sẵn hay chưa
+  const [listProduct, setListProduct] = useState([]); // Mảng rỗng thay vì object
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Bắt đầu tải
+        // Gọi cả hai API đồng thời
+        const [productRes, listProductRes] = await Promise.all([
+          sanPhamService.getProductById(id_product),
+          sanPhamService.getListProduct(),
+        ]);
+
+        setProduct(productRes.data.data);
+        setListProduct(listProductRes.data.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false); // Kết thúc tải
+      }
+    };
+
+    fetchData();
+  }, [id_product]);
+
+  // Nếu đang loading, hiển thị spinner hoặc thông báo
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Đang tải dữ liệu...</p>
+      </div>
+    );
+  }
+
+  // Nếu không có sản phẩm, hiển thị thông báo
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Không tìm thấy sản phẩm!</p>
+      </div>
+    );
+  }
 
   return (
     <main className="flex-1 py-8">
@@ -30,40 +55,25 @@ const ProductDetailPage = () => {
         {/* Product Gallery and Details */}
         <div className="grid grid-cols-2 gap-8">
           {/* Product Gallery */}
-          <div className="grid grid-cols-2 gap-4">
-            {Array(4)
-              .fill(null)
-              .map((_, index) => (
-                <img
-                  key={index}
-                  src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
-                  alt={`Product Image ${index + 1}`}
-                  className="w-full h-64 object-cover"
-                />
-              ))}
-          </div>
-
+          <Image src={product.gallery?.thumbnail[0]} />
           {/* Product Details */}
           <div>
-            <h1 className="text-2xl font-bold mb-2">Áo Thun Thời Trang</h1>
+            <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
             <div className="flex items-center mb-4">
               <span className="text-red-500 font-bold text-xl mr-2">
-                349.000đ
+                {(product.price * (1 - product.discount / 100)).toLocaleString(
+                  "vi-VN"
+                )}
+                đ
               </span>
-              <span className="text-gray-500 line-through">499.000đ</span>
+              <span className="text-gray-500 line-through">
+                {product.price}đ
+              </span>
               <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                Sale 30%
+                Sale {product.discount}%
               </span>
             </div>
-
-            {/* Color Options */}
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-2">Màu sắc</p>
-              <div className="flex space-x-2">
-                <button className="w-8 h-8 bg-gray-500 rounded-full border-2 border-gray-500"></button>
-                <button className="w-8 h-8 bg-gray-800 rounded-full border-2 border-transparent"></button>
-              </div>
-            </div>
+            <div className="text-xl my-2">{product.description}</div>
 
             {/* Add to Cart Button */}
             <button className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 mb-4">
@@ -77,7 +87,7 @@ const ProductDetailPage = () => {
                 Đơn hàng từ 500.000đ trở lên sẽ được giao miễn phí toàn quốc.
               </p>
               <p className="text-sm mb-2">
-                Miễn phí đổi hàng tại hệ thống showroom JUNO
+                Miễn phí đổi hàng tại hệ thống showroom BAOANH
               </p>
               <p className="text-sm mb-2">
                 Chính sách đổi trả 30 ngày. Đổi trả miễn phí với lý do không vừa
@@ -93,10 +103,10 @@ const ProductDetailPage = () => {
             {/* Additional Info */}
             <div className="border-t pt-4 mt-4">
               <h3 className="text-lg font-bold mb-2">Thông tin bổ sung</h3>
-              <p className="text-sm mb-2">Mã sản phẩm: MTK123</p>
-              <p className="text-sm mb-2">Thương hiệu: JUNO</p>
-              <p className="text-sm mb-2">Chất liệu: Nhựa cao cấp</p>
-              <p className="text-sm mb-2">Loại kính: Kính thời trang</p>
+              <p className="text-sm mb-2">Mã sản phẩm: {product.id_product}</p>
+              <p className="text-sm mb-2">Thương hiệu: BAOANH</p>
+              <p className="text-sm mb-2">Loại : {product.category?.name}</p>
+              <p className="text-sm mb-2">Size: {product.size}</p>
               <p className="text-sm mb-2">
                 Gợi ý bảo quản: Tránh tiếp xúc với nhiệt độ cao
               </p>
@@ -113,7 +123,7 @@ const ProductDetailPage = () => {
             hàng từ 500.000đ. Chúng tôi hỗ trợ đổi trả miễn phí trong vòng 30
             ngày kể từ ngày mua hàng nếu sản phẩm chưa qua sử dụng và còn nguyên
             tem, nhãn mác. Quý khách vui lòng liên hệ tổng đài 1800 1162 hoặc
-            đến showroom JUNO gần nhất để được hỗ trợ. Xem chi tiết chính sách
+            đến showroom BAOANH gần nhất để được hỗ trợ. Xem chi tiết chính sách
             trả và đổi hàng tại đây.
           </p>
         </div>
@@ -125,15 +135,25 @@ const ProductDetailPage = () => {
           </h2>
           <div className="relative">
             <div className="flex space-x-4 overflow-x-auto pb-4">
-              {relatedProducts.map((item, index) => (
+              {listProduct?.map((item, index) => (
                 <div key={index} className="text-center min-w-[200px]">
-                  <img
-                    src={item.img}
+                  <Image
+                    src={item.gallery?.thumbnail?.[0]}
                     alt={item.title}
                     className="w-full h-48 object-cover"
                   />
-                  <p className="mt-2">{item.title}</p>
-                  <p className="text-red-500 font-bold">{item.price}</p>
+                  <Link
+                    to={`/product-detail/${item.id_product}`}
+                    className="mt-2"
+                  >
+                    {item.title}
+                  </Link>
+                  <p className="text-red-500 font-bold">
+                    {(item.price * (1 - item.discount / 100)).toLocaleString(
+                      "vi-VN"
+                    )}
+                    đ
+                  </p>
                 </div>
               ))}
             </div>

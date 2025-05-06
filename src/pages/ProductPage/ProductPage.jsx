@@ -1,32 +1,51 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { sanPhamService } from "../../services/product.service";
+import { NotificationContext } from "../../App";
+import { Dropdown, Space } from "antd";
+import { DownOutlined, SmileOutlined } from "@ant-design/icons";
 
 const ProductPage = () => {
-  const flashSaleItems = [
+  const { showNotification } = useContext(NotificationContext);
+  const [products, setProducts] = useState([]);
+  const [listProduct, setListProduct] = useState([]);
+  useEffect(() => {
+    sanPhamService
+      .getListProduct()
+      .then((res) => {
+        console.log(res.data.data);
+        setProducts(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        showNotification("Lỗi kết nối", "error", 2000);
+      });
+  }, []);
+
+  const items = [
     {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Túi Xách Hobo...",
-      price: "549.000đ",
+      key: "1",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.antgroup.com"
+        >
+          Tăng dần{" "}
+        </a>
+      ),
     },
     {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Sandal Gót Vuông...",
-      price: "219.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Kính Mát...",
-      price: "349.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Túi Xách Tote...",
-      price: "279.000đ",
-    },
-    {
-      img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-      title: "Giày Sandal Gót...",
-      price: "219.000đ",
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.aliyun.com"
+        >
+          Giảm dần{" "}
+        </a>
+      ),
     },
   ];
 
@@ -135,140 +154,37 @@ const ProductPage = () => {
 
   return (
     <main className="flex-1">
-      {/* Flash Sale Section */}
-      <section className="py-8">
+      {/* Top Sale Phái Mạnh Section */}
+      <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-4">
-            Flash Sale <span className="text-red-500">Mỗi Ngày</span>
-          </h2>
-          <div className="grid grid-cols-5 gap-4">
-            {flashSaleItems.map((item, index) => (
-              <Link to={`/product/detail`} key={index}>
-                <div key={index} className="text-center">
+          <h2 className="text-xl font-bold text-center mb-4">Sản phẩm</h2>
+          <p className="text-center">{products.length} sản phẩm</p>
+          <div className="text-right my-5">
+            <Dropdown menu={{ items }}>
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  Tùy chọn <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
+          </div>
+          <div className="grid grid-cols-5 gap-4 mb-8">
+            {products.map((item, index) => (
+              <div key={index} className="text-center">
+                <Link to={`/product-detail/${item.id_product}`}>
                   <img
-                    src={item.img}
+                    src={item.gallery?.thumbnail[0]}
                     alt={item.title}
                     className="w-full h-48 object-cover"
                   />
                   <p className="mt-2">{item.title}</p>
                   <p className="text-red-500 font-bold">{item.price}</p>
-                </div>
-              </Link>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Top Sale Phái Mạnh Section */}
-      <section className="py-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-xl font-bold text-center mb-4">
-            Top Sale Phái Mạnh
-          </h2>
-          <div className="grid grid-cols-5 gap-4 mb-8">
-            {productItems.slice(0, 5).map((item, index) => (
-              <div key={index} className="text-center">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
-                <p className="mt-2">{item.title}</p>
-                <p className="text-red-500 font-bold">{item.price}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Banner Image */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative">
-              <img
-                src="./img/cardproduct.jpeg"
-                alt="Banner 1"
-                className="w-full h-64 object-cover"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {productItems.slice(5, 7).map((item, index) => (
-                <div key={index} className="text-center">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-full h-32 object-cover"
-                  />
-                  <p className="mt-2">{item.title}</p>
-                  <p className="text-red-500 font-bold">{item.price}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Product Grid with Alternating Banners */}
-      {Array.from({ length: Math.ceil(productItems.length / 10) }).map(
-        (_, sectionIndex) => (
-          <section
-            key={sectionIndex}
-            className={`py-8 ${sectionIndex % 2 === 0 ? "" : "bg-gray-50"}`}
-          >
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-5 gap-4">
-                {productItems
-                  .slice(sectionIndex * 10, (sectionIndex + 1) * 10)
-                  .map((item, index) => (
-                    <div key={index} className="text-center">
-                      <img
-                        src={item.img}
-                        alt={item.title}
-                        className="w-full h-48 object-cover"
-                      />
-                      <p className="mt-2">{item.title}</p>
-                      <p className="text-red-500 font-bold">{item.price}</p>
-                    </div>
-                  ))}
-              </div>
-              {(sectionIndex + 1) * 10 < productItems.length && (
-                <div className="grid grid-cols-2 gap-4 mt-8">
-                  <div
-                    className={sectionIndex % 2 === 0 ? "order-1" : "order-2"}
-                  >
-                    <img
-                      src="./img/cardproduct.jpeg"
-                      alt={`Banner ${sectionIndex + 1}`}
-                      className="w-full h-64 object-cover"
-                    />
-                  </div>
-                  <div
-                    className={sectionIndex % 2 === 0 ? "order-2" : "order-1"}
-                  >
-                    <div className="grid grid-cols-2 gap-4">
-                      {productItems
-                        .slice(
-                          (sectionIndex + 1) * 10,
-                          (sectionIndex + 1) * 10 + 2
-                        )
-                        .map((item, index) => (
-                          <div key={index} className="text-center">
-                            <img
-                              src={item.img}
-                              alt={item.title}
-                              className="w-full h-32 object-cover"
-                            />
-                            <p className="mt-2">{item.title}</p>
-                            <p className="text-red-500 font-bold">
-                              {item.price}
-                            </p>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        )
-      )}
     </main>
   );
 };

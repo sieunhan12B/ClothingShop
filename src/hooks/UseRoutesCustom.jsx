@@ -12,6 +12,7 @@ import AdminTemplate from "../templates/AdminTemplate/AdminTemplate.jsx";
 import ManagerUserPage from "../pages/ManagerUserPage/ManagerUserPage.jsx";
 import ManagerProductPage from "../pages/ManagerProductPage/ManagerProductPage.jsx";
 import MyAccountPage from "../pages/MyAccountPage/MyAccountPage.jsx";
+import ShowRoomPage from "../pages/ShowRoomPage/ShowRoomPage.jsx";
 
 const UseRoutesCustom = () => {
   const routes = useRoutes([
@@ -30,9 +31,14 @@ const UseRoutesCustom = () => {
         {
           path: path.productDetailPage,
           element: <ProductDetailPage />,
-        },{
+        },
+        {
           path: path.myAccount,
           element: <MyAccountPage />,
+        },
+        {
+          path: path.showRoom,
+          element: <ShowRoomPage />,
         },
       ],
     },

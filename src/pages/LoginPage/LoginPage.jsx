@@ -76,7 +76,7 @@ const LoginPage = () => {
       {/* Header */}
       <header className="flex justify-between items-center p-4 border-b">
         <Link to="/" className="text-3xl font-bold text-red-500">
-          JUNO
+          BAOANH
         </Link>
         <nav className="space-x-4">
           <a href="#" className="text-sm uppercase hover:underline">
@@ -120,9 +120,7 @@ const LoginPage = () => {
               error={errors.password}
               touched={touched.password}
             />
-            <div className="flex justify-end">
-              
-            </div>
+            <div className="flex justify-end"></div>
 
             <button
               type="submit"
@@ -209,11 +207,11 @@ const LoginPage = () => {
             </a>
             <span className="mx-2">|</span>
             <a href="#" className="text-gray-600 hover:underline">
-              Về Juno →
+              Về BAOANH →
             </a>
           </div>
           <p className="text-gray-600">
-            © 2019 Juno. Công ty Cổ Phần - SX - TM - DV Juno
+            © 2019 BAOANH. Công ty Cổ Phần - SX - TM - DV BAOANH
           </p>
         </div>
       </footer>
