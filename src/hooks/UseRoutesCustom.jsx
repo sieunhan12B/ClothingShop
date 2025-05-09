@@ -13,6 +13,8 @@ import ManagerUserPage from "../pages/ManagerUserPage/ManagerUserPage.jsx";
 import ManagerProductPage from "../pages/ManagerProductPage/ManagerProductPage.jsx";
 import MyAccountPage from "../pages/MyAccountPage/MyAccountPage.jsx";
 import ShowRoomPage from "../pages/ShowRoomPage/ShowRoomPage.jsx";
+import OderPage from "../pages/OderPage/OderPage.jsx";
+import CategoryPage from "../pages/CategoryPage/CategoryPage.jsx";
 
 const UseRoutesCustom = () => {
   const routes = useRoutes([
@@ -39,6 +41,14 @@ const UseRoutesCustom = () => {
         {
           path: path.showRoom,
           element: <ShowRoomPage />,
+        },
+        {
+          path: path.oderPage,
+          element: <OderPage />,
+        },
+        {
+          path: path.categoryPage,
+          element: <CategoryPage />,
         },
       ],
     },

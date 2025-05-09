@@ -10,6 +10,16 @@ export const sanPhamService = {
   addProduct: (data) => {
     return http.post("/QuanLySanPham/ThemSanPham", data);
   },
+  getListProductByName: (name) => {
+    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTitle/${name}`);
+  },
+  getListProductByCategoryId: (id) => {
+    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id}`);
+  },
+  getListProductByCategoryName: (name) => {
+    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTenDanhMuc/${name}`);
+  },
+
   //   getListUser: () => {
   //     return http.get("/QuanLyNguoiDung/LayDanhSachNguoiDung");
   //   },

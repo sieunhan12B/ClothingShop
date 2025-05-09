@@ -23,7 +23,7 @@ const ShowRoomPage = () => {
       {/* Banner */}
       <section className="">
         <img
-          src="./img/banner2.jpg"
+          src="./img/instagram8.jpg"
           alt="Banner"
           className="w-full h-96 object-cover"
         />
@@ -84,7 +84,7 @@ const ShowRoomPage = () => {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <img
-                src="./img/showroom1.jpg"
+                src="./img/instagram6.jpg"
                 alt="Không gian trưng bày hiện đại"
                 className="w-full h-48 object-cover rounded"
               />
@@ -92,7 +92,7 @@ const ShowRoomPage = () => {
             </div>
             <div>
               <img
-                src="./img/showroom2.jpg"
+                src="./img/instagram5.jpg"
                 alt="Mua sắm thoải mái"
                 className="w-full h-48 object-cover rounded"
               />
@@ -100,7 +100,7 @@ const ShowRoomPage = () => {
             </div>
             <div>
               <img
-                src="./img/showroom3.jpg"
+                src="./img/instagram7.jpg"
                 alt="Dịch vụ tận tâm"
                 className="w-full h-48 object-cover rounded"
               />

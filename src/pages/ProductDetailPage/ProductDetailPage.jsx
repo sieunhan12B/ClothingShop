@@ -5,15 +5,15 @@ import { Image } from "antd";
 
 const ProductDetailPage = () => {
   const { id_product } = useParams();
-  const [product, setProduct] = useState(null); // null để kiểm tra dữ liệu có sẵn hay chưa
-  const [listProduct, setListProduct] = useState([]); // Mảng rỗng thay vì object
-  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [product, setProduct] = useState(null);
+  const [listProduct, setListProduct] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [mainImage, setMainImage] = useState(""); // State for the main image
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true); // Bắt đầu tải
-        // Gọi cả hai API đồng thời
+        setLoading(true);
         const [productRes, listProductRes] = await Promise.all([
           sanPhamService.getProductById(id_product),
           sanPhamService.getListProduct(),
@@ -21,17 +21,23 @@ const ProductDetailPage = () => {
 
         setProduct(productRes.data.data);
         setListProduct(listProductRes.data.data);
+        // Set initial main image
+        setMainImage(productRes.data.data.gallery?.thumbnail[0] || "");
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
-        setLoading(false); // Kết thúc tải
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [id_product]);
 
-  // Nếu đang loading, hiển thị spinner hoặc thông báo
+  // Handle thumbnail click to update main image
+  const handleThumbnailClick = (image) => {
+    setMainImage(image);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -40,7 +46,6 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Nếu không có sản phẩm, hiển thị thông báo
   if (!product) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -55,7 +60,32 @@ const ProductDetailPage = () => {
         {/* Product Gallery and Details */}
         <div className="grid grid-cols-2 gap-8">
           {/* Product Gallery */}
-          <Image src={product.gallery?.thumbnail[0]} />
+          <div>
+            <Image
+              src={mainImage}
+              alt={product.title}
+              className="w-full h-96 object-cover mb-4"
+            />
+            {/* Thumbnail Gallery */}
+            <div className="flex space-x-2 overflow-y-hidden overflow-x-auto">
+              {product.gallery?.thumbnail?.map((image, index) => (
+                <div
+                  key={index}
+                  className={`w-20 h-20 flex-shrink-0 cursor-pointer border-2 ${
+                    mainImage === image ? "border-blue-500" : "border-gray-200"
+                  }`}
+                  onClick={() => handleThumbnailClick(image)}
+                >
+                  <Image
+                    src={image}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    preview={false} // Disable preview for thumbnails
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
           {/* Product Details */}
           <div>
             <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
@@ -105,7 +135,7 @@ const ProductDetailPage = () => {
               <h3 className="text-lg font-bold mb-2">Thông tin bổ sung</h3>
               <p className="text-sm mb-2">Mã sản phẩm: {product.id_product}</p>
               <p className="text-sm mb-2">Thương hiệu: BAOANH</p>
-              <p className="text-sm mb-2">Loại : {product.category?.name}</p>
+              <p className="text-sm mb-2">Loại: {product.category?.name}</p>
               <p className="text-sm mb-2">Size: {product.size}</p>
               <p className="text-sm mb-2">
                 Gợi ý bảo quản: Tránh tiếp xúc với nhiệt độ cao

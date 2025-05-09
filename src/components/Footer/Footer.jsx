@@ -26,10 +26,10 @@ const Footer = () => {
           {/* Showroom */}
           <div>
             <h3 className="font-bold mb-2">Hệ Thống Showroom</h3>
-            <Image
-              src="./img/footer1.jpg"
-              alt="Showroom"
-              className="w-full h-32 object-cover"
+            <img
+              src="./img/instagram5.jpg"
+              alt="Không gian trưng bày hiện đại"
+              className="w-full h-48 object-cover rounded"
             />
             <a href="#" className=" hover:underline">
               Xem địa chỉ hệ thống showroom →
@@ -39,10 +39,10 @@ const Footer = () => {
           {/* Fanpage */}
           <div>
             <h3 className="font-bold mb-2">Fanpage Của Chúng Tôi</h3>
-            <Image
-              src="./img/footer2.jpg"
-              alt="Fanpage"
-              className="w-full h-20 object-cover"
+            <img
+              src="./img/instagram6.jpg"
+              alt="Không gian trưng bày hiện đại"
+              className="w-full h-48 object-cover rounded"
             />
             <div className="flex space-x-2 mt-2">
               <a href="#" className="">

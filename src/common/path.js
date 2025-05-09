@@ -2,11 +2,13 @@ export const path = {
   homePage: "/",
   productPage: "/product",
   productDetailPage: "/product-detail/:id_product",
+  categoryPage: "/category/:name_category",
   managerUserPage: "manager-user",
   managerProductPage: "manager-product",
-  showRoom:"/showroom",
-
+  showRoom: "/showroom",
+  oderPage: "/oder",
   signUp: "/sign-up",
+
   logIn: "/log-in",
   user: "/user",
   admin: "/admin",

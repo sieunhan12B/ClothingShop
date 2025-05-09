@@ -14,6 +14,7 @@ const HomePage = () => {
       .getListProduct()
       .then((res) => {
         console.log(res.data.data);
+
         setProducts(res.data.data);
       })
       .catch((err) => {
@@ -27,13 +28,13 @@ const HomePage = () => {
       {/* Banner */}
       <section className="">
         <img
-          src="./img/banner1.jpg"
+          src="./img/instagram5.jpg"
           alt="Banner"
           className="w-full h-96 object-cover"
         />
       </section>
 
-      {/* Flash Sale Section */}
+      {/* Flash Sale Section
       <section className="py-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-4">
@@ -79,7 +80,7 @@ const HomePage = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Recommendations Section */}
       <section className="py-8">
@@ -110,22 +111,22 @@ const HomePage = () => {
           <p className="text-center text-sm mb-6">@BAOANH.vn</p>
           <div className="grid grid-cols-4 gap-4">
             <img
-              src="./img/instagram1.jpg"
+              src="./img/instagram5.jpg"
               alt="Instagram 1"
               className="w-full  object-cover"
             />
             <img
-              src="./img/instagram2.jpg"
+              src="./img/instagram6.jpg"
               alt="Instagram 2"
               className="w-full  object-cover"
             />
             <img
-              src="./img/instagram3.jpg"
+              src="./img/instagram7.jpg"
               alt="Instagram 3"
               className="w-full  object-cover"
             />
             <img
-              src="./img/instagram4.jpg"
+              src="./img/instagram8.jpg"
               alt="Instagram 4"
               className="w-full  object-cover"
             />
