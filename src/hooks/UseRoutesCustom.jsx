@@ -11,7 +11,10 @@ import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage.jsx"
 import AdminTemplate from "../templates/AdminTemplate/AdminTemplate.jsx";
 import ManagerUserPage from "../pages/ManagerUserPage/ManagerUserPage.jsx";
 import ManagerProductPage from "../pages/ManagerProductPage/ManagerProductPage.jsx";
+import ManagerCategoryPage from "../pages/ManagerCategoryPage/ManagerCategoryPage.jsx";
+import ManagerOrderPage from "../pages/ManagerOrderPage/ManagerOrderPage.jsx";
 import MyAccountPage from "../pages/MyAccountPage/MyAccountPage.jsx";
+import ManagerGalleryPage from "../pages/ManagerGalleryPage/ManagerGalleryPage.jsx";
 
 const UseRoutesCustom = () => {
   const routes = useRoutes([
@@ -48,6 +51,20 @@ const UseRoutesCustom = () => {
         {
           path: path.managerProductPage,
           element: <ManagerProductPage />,
+        },
+        
+        {
+          path: path.managerCategoryPage,
+          element: <ManagerCategoryPage />,
+        },
+
+        {
+          path: path.managerOrderPage,
+          element: <ManagerOrderPage />,
+        },
+        {
+          path: path.managerGalleryPage,
+          element: <ManagerGalleryPage />,
         },
       ],
     },

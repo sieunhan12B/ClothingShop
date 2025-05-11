@@ -1,16 +1,18 @@
 import { http } from "./config";
 
 export const nguoiDungService = {
-  getListUser: () => {
-    return http.get("/QuanLyNguoiDung/LayDanhSachNguoiDung");
+  getPaginatedData: (params = {}) => {
+    return http.get("/QuanLyNguoiDung/LayDanhSachNguoiDung", { params });
   },
-  addUser: (data) => {
-    return http.post("/QuanLyNguoiDung/ThemNguoiDung", data);
+  searchUsers: (keyword, params = {}) => {
+    return http.get("/QuanLyNguoiDung/TimKiemNguoiDung", {
+      params: { keyword, ...params },
+    });
   },
-  deleteUser: (account) => {
-    return http.delete(`/QuanLyNguoiDung/XoaNguoiDung/${account}`);
+  updateInfoUser: (userData) => {
+    return http.put("/QuanLyNguoiDung/CapNhatTaiKhoan", userData); // Giả sử endpoint
   },
-  updateUser: (data) => {
-    return http.put("/QuanLyNguoiDung/CapNhatThongTinNguoiDung", data);
+  changePassword: (passwordData) => {
+    return http.post("/QuanLyNguoiDung/DoiMatKhau", passwordData); // Giả sử endpoint
   },
 };

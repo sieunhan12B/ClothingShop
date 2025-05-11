@@ -22,20 +22,34 @@ const SignUpPage = () => {
         xacNhanpassword: "",
       },
       validationSchema: Yup.object({
-        fullname: Yup.string().required("Họ tên không được để trống"),
+        fullname: Yup.string()
+          .required("Họ tên không được để trống")
+          .matches(
+            /^[A-Za-z\sÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴÝỶỸưăạảấầẩẫậắằẳẵặẹẻẽềềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]+$/,
+            "Họ tên chỉ được chứa chữ cái và khoảng trắng, không chứa số hoặc ký tự đặc biệt"
+          ),
         email: Yup.string()
-          .email("Email không đúng định dạng")
+          .matches(
+            /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+            "Email không đúng định dạng, chỉ cho phép chữ cái, số, và các ký tự đặc biệt hợp lệ (., _, %, +, -)"
+          )
           .required("Email không được để trống"),
         phone_number: Yup.string()
-          .matches(/^\d{10,15}$/, "Số điện thoại phải có 10-15 chữ số")
+          .matches(/^[0-9]{10,11}$/, "Số điện thoại phải có 10-11 chữ số")
           .required("Số điện thoại không được để trống"),
         password: Yup.string()
           .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
+          .matches(
+            /^[A-Za-z0-9]*$/,
+            "Mật khẩu chỉ được chứa chữ cái hoặc số, không chứa ký tự đặc biệt"
+          )
           .required("Mật khẩu không được để trống"),
         xacNhanpassword: Yup.string()
           .required("Vui lòng nhập lại mật khẩu")
           .oneOf([Yup.ref("password"), null], "Mật khẩu không khớp"),
       }),
+      validateOnChange: true, // Bật kiểm tra lỗi khi thay đổi giá trị
+      validateOnBlur: true,  // Bật kiểm tra lỗi khi rời khỏi trường
       onSubmit: (values) => {
         const { fullname, email, phone_number, password } = values;
         authService
@@ -66,8 +80,6 @@ const SignUpPage = () => {
   return (
     <div className="form-signup flex items-center justify-center min-h-screen bg-white">
       <div className="w-full max-w-[500px] p-4 md:p-8 bg-white/90 border border-gray-300 rounded-lg shadow-md backdrop-blur-sm">
-        
-
         <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký</h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -140,8 +152,6 @@ const SignUpPage = () => {
           </div>
         </form>
       </div>
-
-      
     </div>
   );
 };

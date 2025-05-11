@@ -21,3 +21,13 @@ export const setLocalStorage = (key, value) => {
     console.error(`Error saving to localStorage: ${key}`, error);
   }
 };
+
+
+export const removeLocalStorage = (key) => {
+  try {
+    console.log(`Removing from localStorage: ${key}`);
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error(`Error removing from localStorage: ${key}`, error);
+  }
+};

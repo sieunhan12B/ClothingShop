@@ -7,10 +7,10 @@ export const danhMucService = {
   addCategory: (data) => {
     return http.post("/QuanLyDanhMuc/ThemDanhMuc", data);
   },
-  updateCategory: (data) => {
-    return http.put("/QuanLyDanhMuc/CapNhatDanhMuc", data);
+  updateCategory: (id_category, data) => {
+    return http.put(`/QuanLyDanhMuc/CapNhatDanhMuc/${id_category}`, data);
   },
-  deleteCategory: (categoryId) => {
-    return http.delete(`/QuanLyDanhMuc/XoaDanhMuc/${categoryId}`);
+  deleteCategory: (id_category) => {
+    return http.delete(`/QuanLyDanhMuc/XoaDanhMuc/${id_category}`);
   },
 };

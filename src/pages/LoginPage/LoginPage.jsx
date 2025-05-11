@@ -29,33 +29,14 @@ const LoginPage = () => {
         authService
           .logIn(values)
           .then((res) => {
-            console.log("API Response:", res.data);
-            // Linh hoạt lấy dữ liệu người dùng từ response
-            const responseData = res.data;
-            let userData =
-              responseData.data?.user || responseData.result || responseData;
-            let accessToken =
-              responseData.data?.accessToken ||
-              responseData.result?.accessToken;
+            const { user, accessToken } = res.data.data;
+            console.log("Login success, accessToken:", accessToken); // Debug token
+            console.log("User data:", user);
 
-            // Đảm bảo userData có các trường cần thiết
-            const user = {
-              id_user: userData.id_user || userData.id,
-              fullname: userData.fullname || userData.hoTen || userData.name,
-              email: userData.email,
-              phone_number:
-                userData.phone_number || userData.soDT || userData.phone,
-              role: userData.role || userData.maLoaiNguoiDung || "user",
-              created_at: userData.created_at || new Date().toISOString(),
-            };
-            console.log("User Data to Save:", user);
-
-            // Lưu user vào localStorage
+            // Lưu user và accessToken vào localStorage
             setLocalStorage("user", user);
-            // Lưu accessToken riêng (nếu có)
-            if (accessToken) {
-              setLocalStorage("accessToken", accessToken);
-            }
+            setLocalStorage("accessToken", accessToken);
+
             showNotification("Đăng nhập thành công", "success");
             setTimeout(() => {
               navigate(path.homePage);
@@ -93,7 +74,6 @@ const LoginPage = () => {
 
       {/* Main Content */}
       <div className="form-login flex items-center justify-center min-h-screen bg-white">
-        {/* Phần form đăng nhập */}
         <div className="relative w-full max-w-[500px] p-4 md:p-8 bg-white/90 border border-gray-300 rounded-lg shadow-md backdrop-blur-sm">
           <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
 
@@ -120,9 +100,7 @@ const LoginPage = () => {
               error={errors.password}
               touched={touched.password}
             />
-            <div className="flex justify-end">
-              
-            </div>
+            <div className="flex justify-end"></div>
 
             <button
               type="submit"
@@ -146,7 +124,6 @@ const LoginPage = () => {
       {/* Footer */}
       <footer className="bg-gray-100 py-6">
         <div className="max-w-6xl mx-auto grid grid-cols-4 gap-4 text-sm">
-          {/* Online Shopping */}
           <div>
             <h3 className="font-bold mb-2">
               Gọi Mua Hàng Online (08:00 - 21:00 mỗi ngày)
@@ -154,13 +131,11 @@ const LoginPage = () => {
             <p className="text-xl font-bold text-blue-500">1800 1162</p>
             <p>Tất cả các ngày trong tuần (Trừ Tết Âm Lịch)</p>
             <h3 className="font-bold mt-4">
-              Góp Ý & Khiếu Nại (08:30 - 20:30)
+              Góp Ý & Khiếu Nại (08:30 - 20 Biblicaly, các ngày trong tuần (Trừ Tết Âm Lịch)
             </h3>
             <p className="text-xl font-bold text-blue-500">1800 1160</p>
             <p>Tất cả các ngày trong tuần (Trừ Tết Âm Lịch)</p>
           </div>
-
-          {/* Showroom */}
           <div>
             <h3 className="font-bold mb-2">Hệ Thống Showroom</h3>
             <img
@@ -172,8 +147,6 @@ const LoginPage = () => {
               Xem địa chỉ hệ thống showroom →
             </a>
           </div>
-
-          {/* Fanpage */}
           <div>
             <h3 className="font-bold mb-2">Fanpage Của Chúng Tôi</h3>
             <img
@@ -196,12 +169,8 @@ const LoginPage = () => {
               </a>
             </div>
           </div>
-
-          {/* Placeholder */}
           <div></div>
         </div>
-
-        {/* Footer Links */}
         <div className="max-w-6xl mx-auto mt-4 flex justify-between text-sm">
           <div>
             <a href="#" className="text-gray-600 hover:underline">

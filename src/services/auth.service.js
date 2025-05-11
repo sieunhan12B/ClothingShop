@@ -10,4 +10,7 @@ export const authService = {
   getUserInfo: (id_user) => {
     return http.get(`/QuanLyNguoiDung/LayThongTinTaiKhoan/${id_user}`);
   },
+  logout: () => {
+    return http.post("/DangXuat");
+  },
 };

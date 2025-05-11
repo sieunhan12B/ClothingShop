@@ -1,34 +1,29 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
-import { Space, Table, Image, Select, Spin, Modal } from "antd";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+import { Space, Table, Image, Spin, Modal } from "antd";
 import { NotificationContext } from "../../App";
-import FormSearchProduct from "../../components/FormSearchProduct/FormSearchProduct";
-import { sanPhamService } from "../../services/sanPham.service";
-import FormAddProduct from "../../components/FormAddItem/FormAddProduct";
-import { format } from "date-fns";
+import FormSearchGallery from "../../components/FormSearchGallery/FormSearchGallery";
+import FormAddGallery from "../../components/FormAddItem/FormAddGallery";
+import { hinhAnhService } from "../../services/hinhAnh.service";
 import debounce from "lodash/debounce";
 import { getLocalStorage } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 
-const { Option } = Select;
-
-const ManagerProductPage = () => {
-  const [products, setProducts] = useState([]);
+const ManagerGalleryPage = () => {
+  const [galleries, setGalleries] = useState([]);
   const [tempData, setTempData] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const { showNotification } = useContext(NotificationContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedGallery, setSelectedGallery] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [loading, setLoading] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const fetchProducts = async () => {
+  const fetchGalleries = async () => {
     try {
       setLoading(true);
       const params = {
@@ -36,36 +31,28 @@ const ManagerProductPage = () => {
         limit: pageSize,
       };
 
-      if (selectedCategory) {
-        const selectedCategoryObj = categories.find(
-          (cat) => cat.name === selectedCategory
-        );
-        if (selectedCategoryObj) {
-          params.id_category = selectedCategoryObj.id_category;
-        }
-      }
-
-      let apiCall;
+      let res;
       if (searchKeyword) {
-        apiCall = sanPhamService.searchProducts(searchKeyword, params);
-      } else if (selectedCategory) {
-        apiCall = sanPhamService.getProductByCategoryName(selectedCategory, params);
+        res = await hinhAnhService.getGalleryByKeyword(searchKeyword, params);
       } else {
-        apiCall = sanPhamService.getPaginatedData(params);
+        res = await hinhAnhService.getPaginatedData(params);
       }
 
-      const res = await apiCall;
-      const products = Array.isArray(res.data.data) ? res.data.data : [];
-      setTempData(products);
-      setTotalItems(res.data.pagination?.totalItems || products.length);
+      const galleries = Array.isArray(res.data.data)
+        ? res.data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+      setTempData(galleries);
+      setTotalItems(res.data.pagination?.totalItems || galleries.length);
 
       showNotification(
         searchKeyword
-          ? products.length === 0
-            ? "Không tìm thấy sản phẩm phù hợp với từ khóa"
-            : "Tìm kiếm sản phẩm thành công"
-          : "Lấy dữ liệu sản phẩm thành công",
-        products.length === 0 && searchKeyword ? "warning" : "success"
+          ? galleries.length === 0
+            ? "Không tìm thấy gallery phù hợp với từ khóa"
+            : "Tìm kiếm gallery thành công"
+          : "Lấy dữ liệu gallery thành công",
+        galleries.length === 0 && searchKeyword ? "warning" : "success"
       );
     } catch (err) {
       console.error("API Error:", {
@@ -74,7 +61,7 @@ const ManagerProductPage = () => {
         status: err.response?.status,
       });
       const errorMessage =
-        err.response?.data?.message || "Không thể tìm kiếm sản phẩm";
+        err.response?.data?.message || "Không thể tìm kiếm gallery";
       showNotification(errorMessage, "error");
     } finally {
       setLoading(false);
@@ -97,23 +84,12 @@ const ManagerProductPage = () => {
       return;
     }
 
-    sanPhamService
-      .getAllCategory()
-      .then((res) => {
-        setCategories(res.data.data || []);
-      })
-      .catch((err) => {
-        showNotification(err.response?.data?.message || "Lỗi khi lấy danh mục", "error");
-      });
-
-    fetchProducts();
-  }, [currentPage, pageSize, searchKeyword, selectedCategory, navigate]);
+    fetchGalleries();
+  }, [currentPage, pageSize, searchKeyword, navigate]);
 
   useEffect(() => {
-    if (!loading) {
-      setProducts(tempData);
-    }
-  }, [tempData, loading, currentPage]);
+    setGalleries(tempData);
+  }, [tempData]);
 
   const debouncedSearch = useCallback(
     debounce((searchTerm) => {
@@ -129,8 +105,8 @@ const ManagerProductPage = () => {
     debouncedSearch(searchTerm);
   };
 
-  const showModal = (product = null) => {
-    setSelectedProduct(product);
+  const showModal = (gallery = null) => {
+    setSelectedGallery(gallery);
     setIsModalOpen(true);
   };
 
@@ -139,7 +115,7 @@ const ManagerProductPage = () => {
   };
 
   const onFinish = () => {
-    fetchProducts();
+    fetchGalleries();
   };
 
   const handleTableChange = (pagination) => {
@@ -156,11 +132,12 @@ const ManagerProductPage = () => {
     let thumbnailUrls = [];
     if (thumbnail) {
       try {
-        thumbnailUrls = typeof thumbnail === "string"
-          ? JSON.parse(thumbnail)
-          : Array.isArray(thumbnail)
-          ? thumbnail
-          : [thumbnail];
+        thumbnailUrls =
+          typeof thumbnail === "string"
+            ? JSON.parse(thumbnail)
+            : Array.isArray(thumbnail)
+            ? thumbnail
+            : [thumbnail];
       } catch (e) {
         console.error("Error parsing thumbnail:", e);
         thumbnailUrls = Array.isArray(thumbnail) ? thumbnail : [thumbnail];
@@ -172,57 +149,40 @@ const ManagerProductPage = () => {
 
   const columns = [
     {
-      title: "Mã sản phẩm",
-      dataIndex: "id_product",
-      key: "id_product",
+      title: "Mã Gallery",
+      dataIndex: "id_gallery",
+      key: "id_gallery",
       align: "center",
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "title",
-      key: "title",
-      align: "center",
-    },
-    {
-      title: "Giá tiền",
-      dataIndex: "price",
-      key: "price",
-      align: "center",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
-    },
-    {
-      title: "Giảm giá",
-      dataIndex: "discount",
-      key: "discount",
-      align: "center",
-      render: (discount) => `${discount.toLocaleString()} %`,
-    },
-    {
-      title: "Kích thước",
-      dataIndex: "size",
-      key: "size",
+      title: "Tên Gallery",
+      dataIndex: "name",
+      key: "name",
       align: "center",
     },
     {
       title: "Hình ảnh",
-      dataIndex: "gallery",
-      key: "gallery",
+      dataIndex: "thumbnail",
+      key: "thumbnail",
       align: "center",
-      render: (gallery) => {
+      render: (thumbnail) => {
         let thumbnailUrls = [];
-        if (gallery?.thumbnail) {
+        if (thumbnail) {
           try {
-            thumbnailUrls = typeof gallery.thumbnail === "string"
-              ? JSON.parse(gallery.thumbnail)
-              : Array.isArray(gallery.thumbnail)
-              ? gallery.thumbnail
-              : [gallery.thumbnail];
+            thumbnailUrls =
+              typeof thumbnail === "string"
+                ? JSON.parse(thumbnail)
+                : Array.isArray(thumbnail)
+                ? thumbnail
+                : [thumbnail];
           } catch (e) {
             console.error("Error parsing thumbnail:", e);
-            thumbnailUrls = Array.isArray(gallery.thumbnail) ? gallery.thumbnail : [gallery.thumbnail];
+            thumbnailUrls = Array.isArray(thumbnail) ? thumbnail : [thumbnail];
           }
         }
-        const previewImage = thumbnailUrls[0] || "https://via.placeholder.com/100x75?text=No+Image";
+        const previewImage =
+          thumbnailUrls[0] ||
+          "https://via.placeholder.com/100x75?text=No+Image";
         return (
           <div className="flex justify-center">
             <Image
@@ -231,41 +191,12 @@ const ManagerProductPage = () => {
               width={100}
               alt="preview-image"
               src={previewImage}
-              onClick={() => handleImagePreview(gallery?.thumbnail)}
+              onClick={() => handleImagePreview(thumbnail)}
               fallback="https://via.placeholder.com/100x75?text=No+Image"
             />
           </div>
         );
       },
-    },
-    {
-      title: "Danh mục",
-      dataIndex: "category",
-      key: "category",
-      align: "center",
-      render: (category) => category?.name || "N/A",
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      align: "center",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center",
-      render: (created_at) =>
-        created_at ? format(new Date(created_at), "dd/MM/yyyy HH:mm") : "N/A",
-    },
-    {
-      title: "Ngày cập nhật",
-      dataIndex: "updated_at",
-      key: "updated_at",
-      align: "center",
-      render: (updated_at) =>
-        updated_at ? format(new Date(updated_at), "dd/MM/yyyy HH:mm") : "N/A",
     },
     {
       title: "Hành động",
@@ -283,16 +214,16 @@ const ManagerProductPage = () => {
           </button>
           <button
             onClick={() => {
-              sanPhamService
-                .deleteProduct(record.id_product)
+              hinhAnhService
+                .deleteGallery(record.id_gallery)
                 .then((res) => {
-                  showNotification("Xóa sản phẩm thành công", "success");
+                  showNotification("Xóa gallery thành công", "success");
                   onFinish();
                 })
                 .catch((err) => {
-                  console.error("Delete Product Error:", err.response?.data || err.message);
+                  console.error("Delete Gallery Error:", err.response?.data || err.message);
                   showNotification(
-                    err.response?.data?.message || "Lỗi xóa sản phẩm",
+                    err.response?.data?.message || "Xóa gallery thất bại",
                     "error"
                   );
                 });
@@ -309,41 +240,28 @@ const ManagerProductPage = () => {
   return (
     <div className="w-max-[1000px]">
       <div className="mb-4 flex justify-between items-center">
-        <FormSearchProduct
+        <FormSearchGallery
           className="mx-0"
-          title="Tìm kiếm sản phẩm (nhập thông tin sản phẩm)..."
+          title="Tìm kiếm gallery (nhập mã hoặc tên gallery)..."
           onSearch={handleSearch}
         />
-        <div className="flex items-center space-x-3">
-          <Select
-            placeholder="Chọn danh mục"
-            style={{ width: 200 }}
-            onChange={(value) => setSelectedCategory(value)}
-            value={selectedCategory}
-            allowClear
-          >
-            {categories.map((category) => (
-              <Option key={category.id_category} value={category.name}>
-                {category.name}
-              </Option>
-            ))}
-          </Select>
+        <div className="flex items-center">
           <button
             onClick={() => {
               showModal();
             }}
             className="bg-black text-white font-semibold rounded-md py-2 px-5 hover:bg-gray-200 hover:text-black transition-colors"
           >
-            Thêm sản phẩm
+            Thêm Gallery
           </button>
         </div>
       </div>
 
-      <FormAddProduct
+      <FormAddGallery
         isModalOpen={isModalOpen}
         handleCancel={handleCancel}
         onFinish={onFinish}
-        productData={selectedProduct}
+        galleryData={selectedGallery}
       />
 
       <Modal
@@ -377,7 +295,7 @@ const ManagerProductPage = () => {
         <Table
           className="w-full max-w-full overflow-hidden"
           columns={columns}
-          dataSource={products}
+          dataSource={galleries}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
@@ -390,4 +308,4 @@ const ManagerProductPage = () => {
   );
 };
 
-export default ManagerProductPage;
+export default ManagerGalleryPage;
