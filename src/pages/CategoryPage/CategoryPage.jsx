@@ -1,26 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { sanPhamService } from "../../services/product.service";
-import { NotificationContext } from "../../App";
+import { Link } from "react-router-dom";
 import { Dropdown, Space } from "antd";
-import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
+import { NotificationContext } from "../../App";
 
-const ProductPage = () => {
-  const { showNotification } = useContext(NotificationContext);
+const CategoryPage = () => {
+  const { name_category } = useParams();
+  console.log(name_category);
   const [products, setProducts] = useState([]);
-  const [listProduct, setListProduct] = useState([]);
-  useEffect(() => {
-    sanPhamService
-      .getListProduct()
-      .then((res) => {
-        console.log(res.data.data);
-        setProducts(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        showNotification("Lỗi kết nối", "error", 2000);
-      });
-  }, []);
+  const { showNotification } = useContext(NotificationContext);
 
   const items = [
     {
@@ -49,13 +39,31 @@ const ProductPage = () => {
     },
   ];
 
+  useEffect(() => {
+    sanPhamService
+      .getListProductByCategoryName(name_category)
+      .then((res) => {
+        console.log(res.data.data);
+        showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
+        setProducts(res.data.data);
+      })
+      .catch((err) => {
+        console.error(err.response.data.message, err);
+        showNotification(err.response.data.message, "error", 2000);
+      })
+      .finally(() => {
+        console.log("Fetch products by category completed");
+      });
+  }, [name_category]);
 
   return (
     <main className="flex-1">
       {/* Top Sale Phái Mạnh Section */}
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-xl font-bold text-center mb-4">Sản phẩm</h2>
+          <h2 className="text-xl font-bold text-center mb-4">
+            {products[0]?.category.name}
+          </h2>
           <p className="text-center">{products.length} sản phẩm</p>
           <div className="text-right my-5">
             <Dropdown menu={{ items }}>
@@ -87,4 +95,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default CategoryPage;

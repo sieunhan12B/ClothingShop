@@ -1,21 +1,40 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { sanPhamService } from "../../services/product.service";
+import { Link } from "react-router-dom";
+import { path } from "../../common/path";
+import { NotificationContext } from "../../App";
 
 const HomePage = () => {
+  const [products, setProducts] = useState([]);
+  const [listProduct, setListProduct] = useState([]);
+  const { showNotification } = useContext(NotificationContext);
+
+  useEffect(() => {
+    sanPhamService
+      .getListProduct()
+      .then((res) => {
+        console.log(res.data.data);
+
+        setProducts(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        showNotification("Lỗi kết nối", "error", 2000);
+      });
+  }, []);
+
   return (
     <main className="flex-1">
       {/* Banner */}
-      <section className="relative">
+      <section className="">
         <img
-          src="./img/banner1.jpg"
+          src="./img/instagram5.jpg"
           alt="Banner"
           className="w-full h-96 object-cover"
         />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <h1 className="text-4xl font-bold text-white">He NONSTOP</h1>
-        </div>
       </section>
 
-      {/* Flash Sale Section */}
+      {/* Flash Sale Section
       <section className="py-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-4">
@@ -61,140 +80,25 @@ const HomePage = () => {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* New Arrivals Section */}
-      <section className="py-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-4">Hàng Mới Về</h2>
-          <p className="text-center text-sm mb-6">
-            Cốc sản phẩm bình nước, nước uống khiến bạn mê mẩn
-          </p>
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Giày Cao Gót Pump...",
-                price: "549.000đ",
-              },
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Túi Xách Tote Cán...",
-                price: "849.000đ",
-              },
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Túi Xách Mini Hộp...",
-                price: "989.000đ",
-              },
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="w-full h-64 object-cover"
-                />
-                <p className="mt-2">{item.title}</p>
-                <p className="text-red-500 font-bold">{item.price}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-center mt-4">
-            <a href="#" className="text-blue-500 hover:underline">
-              Xem Tất Cả →
-            </a>
-          </p>
-        </div>
-      </section>
-
-      {/* Pre-Summer Collection Section */}
-      <section className="py-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-4">
-            Pre-Summer Collection - Chó bợ rực rỡ, tự xinh cool
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <img
-              src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
-              alt="Pre-Summer 1"
-              className="w-full h-64 object-cover"
-            />
-            <img
-              src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
-              alt="Pre-Summer 2"
-              className="w-full h-64 object-cover"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Collection Section */}
-      <section className="py-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-4">Bộ Sưu Tập</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative">
-              <img
-                src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
-                alt="Collection 1"
-                className="w-full h-64 object-cover"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-white text-lg">He NONSTOP - Khiêm Ngại</p>
-              </div>
-            </div>
-            <div className="relative">
-              <img
-                src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
-                alt="Collection 2"
-                className="w-full h-64 object-cover"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-white text-lg">He NONSTOP</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </section> */}
 
       {/* Recommendations Section */}
       <section className="py-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-4">
-            Gợi Ý Dành Riêng Cho Bạn
-          </h2>
+          <h2 className="text-2xl font-bold text-center mb-4">Bộ Sưu Tập </h2>
           <div className="grid grid-cols-4 gap-4">
-            {[
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Giày Cao Gót Pump...",
-                price: "499.000đ",
-              },
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Giày Sneakers...",
-                price: "749.000đ",
-              },
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Giày Cao Gót Pump...",
-                price: "549.000đ",
-              },
-              {
-                img: "https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain",
-                title: "Giày Cao Gót Sục...",
-                price: "499.000đ",
-              },
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
-                <p className="mt-2">{item.title}</p>
-                <p className="text-red-500 font-bold">{item.price}</p>
-              </div>
+            {products.map((item, index) => (
+              <Link to={`/product-detail/${item.id_product}`} key={index}>
+                <div key={index} className="text-center">
+                  <img
+                    src={item.gallery.thumbnail[0]}
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <p className="mt-2">{item.title}</p>
+                  <p className="text-red-500 font-bold">{item.price}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -204,22 +108,27 @@ const HomePage = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-4">Instagram</h2>
-          <p className="text-center text-sm mb-6">@juno.vn</p>
-          <div className="grid grid-cols-3 gap-4">
+          <p className="text-center text-sm mb-6">@BAOANH.vn</p>
+          <div className="grid grid-cols-4 gap-4">
             <img
-              src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
+              src="./img/instagram5.jpg"
               alt="Instagram 1"
-              className="w-full h-48 object-cover"
+              className="w-full  object-cover"
             />
             <img
-              src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
+              src="./img/instagram6.jpg"
               alt="Instagram 2"
-              className="w-full h-48 object-cover"
+              className="w-full  object-cover"
             />
             <img
-              src="https://th.bing.com/th/id/OIP.7ZxepcJaDNoUZqs3JZPxKwHaHa?rs=1&pid=ImgDetMain"
+              src="./img/instagram7.jpg"
               alt="Instagram 3"
-              className="w-full h-48 object-cover"
+              className="w-full  object-cover"
+            />
+            <img
+              src="./img/instagram8.jpg"
+              alt="Instagram 4"
+              className="w-full  object-cover"
             />
           </div>
         </div>
