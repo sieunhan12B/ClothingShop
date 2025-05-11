@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { sanPhamService } from "../../services/product.service";
+import { sanPhamService } from "../../services/sanPham.service";
 import { NotificationContext } from "../../App";
 import { Dropdown, Space } from "antd";
 import { DownOutlined, SmileOutlined } from "@ant-design/icons";
@@ -11,7 +11,7 @@ const ProductPage = () => {
   const [listProduct, setListProduct] = useState([]);
   useEffect(() => {
     sanPhamService
-      .getListProduct()
+      .getAllProducts()
       .then((res) => {
         console.log(res.data.data);
         setProducts(res.data.data);
@@ -48,7 +48,6 @@ const ProductPage = () => {
       ),
     },
   ];
-
 
   return (
     <main className="flex-1">

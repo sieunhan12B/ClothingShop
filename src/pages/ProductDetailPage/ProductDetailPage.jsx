@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { sanPhamService } from "../../services/product.service";
+import { sanPhamService } from "../../services/sanPham.service";
 import { Image } from "antd";
 
 const ProductDetailPage = () => {
@@ -16,7 +16,7 @@ const ProductDetailPage = () => {
         setLoading(true);
         const [productRes, listProductRes] = await Promise.all([
           sanPhamService.getProductById(id_product),
-          sanPhamService.getListProduct(),
+          sanPhamService.getAllProducts(),
         ]);
 
         setProduct(productRes.data.data);

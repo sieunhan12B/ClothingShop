@@ -1,6 +1,10 @@
 import { http } from "./config";
 
 export const sanPhamService = {
+  getAllProducts: () => {
+    return http.get("/QuanLySanPham/LayDanhSachSanPham");
+  },
+
   getPaginatedData: (params = {}) => {
     return http.get("/QuanLySanPham/LayDanhSachSanPham", { params });
   },
@@ -8,13 +12,19 @@ export const sanPhamService = {
     return http.get(`/QuanLySanPham/LayThongTinSanPhamTheoId/${id_product}`);
   },
   getProductByCategory: (id_category) => {
-    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}`);
+    return http.get(
+      `/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}`
+    );
   },
   getProductByName: (title) => {
     return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTitle/${title}`);
   },
   getProductByKeyword: (keyword) => {
-    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTuKhoaTimKiem/${encodeURIComponent(keyword)}`);
+    return http.get(
+      `/QuanLySanPham/LayDanhSachSanPhamTheoTuKhoaTimKiem/${encodeURIComponent(
+        keyword
+      )}`
+    );
   },
   addProduct: (data) => {
     return http.post("/QuanLySanPham/ThemSanPham", data, {
@@ -36,11 +46,19 @@ export const sanPhamService = {
   getAllCategory: () => {
     return http.get("/QuanLySanPham/LayDanhSachDanhMuc");
   },
-  getProductByCategoryName: (name) => {
-    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTenDanhMuc/${encodeURIComponent(name)}`);
+  getProductByCategoryName: (name_category) => {
+    return http.get(
+      `/QuanLySanPham/LayDanhSachSanPhamTheoTenDanhMuc/${encodeURIComponent(
+        name_category
+      )}`
+    );
   },
   searchProducts: (keyword, params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return http.get(`/QuanLySanPham/LayDanhSachSanPhamTheoTuKhoaTimKiem/${encodeURIComponent(keyword)}${query ? `?${query}` : ''}`);
+    return http.get(
+      `/QuanLySanPham/LayDanhSachSanPhamTheoTuKhoaTimKiem/${encodeURIComponent(
+        keyword
+      )}${query ? `?${query}` : ""}`
+    );
   },
 };

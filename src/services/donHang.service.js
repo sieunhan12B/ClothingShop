@@ -11,12 +11,26 @@ export const donHangService = {
     return http.put(`/QuanLyOrders/XacNhanDonHang/${id_order}`, payload);
   },
   getOrderByStatus: (status, params) => {
-    return http.get(`/QuanLyOrders/LayDanhSachDonHangTheoTrangThai/${status}`, { params });
+    return http.get(`/QuanLyOrders/LayDanhSachDonHangTheoTrangThai/${status}`, {
+      params,
+    });
   },
   getOrderByKeyword: (keyword, params) => {
-    return http.get(`/QuanLyOrders/LayDanhSachDonHangCuaNguoiDung/${encodeURIComponent(keyword)}`, { params });
+    return http.get(
+      `/QuanLyOrders/LayDanhSachDonHangCuaNguoiDung/${encodeURIComponent(
+        keyword
+      )}`,
+      { params }
+    );
   },
   getOrderById: (id_order) => {
     return http.get(`/QuanLyOrders/LayDonHangTheoMaDonHang/${id_order}`);
+  },
+  getProductsByCart: (id_user, token) => {
+    return http.get(`/QuanLyOrders/LayDanhSachSanPhamTrongGioHang/${id_user}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   },
 };

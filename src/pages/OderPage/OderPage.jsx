@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { sanPhamService } from "../../services/product.service";
-import { donHangService } from "../../services/order.service";
+import { sanPhamService } from "../../services/sanPham.service";
+import { donHangService } from "../../services/donHang.service";
 import { NotificationContext } from "../../App";
 import { Link } from "react-router-dom";
 
@@ -29,7 +29,7 @@ const OrderPage = () => {
 
   useEffect(() => {
     sanPhamService
-      .getListProduct()
+      .getAllProducts()
       .then((res) => {
         setProducts(res.data.data);
         showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);

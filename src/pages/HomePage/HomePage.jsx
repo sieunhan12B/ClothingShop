@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { sanPhamService } from "../../services/product.service";
+import { sanPhamService } from "../../services/sanPham.service";
 import { Link } from "react-router-dom";
 import { path } from "../../common/path";
 import { NotificationContext } from "../../App";
@@ -11,7 +11,7 @@ const HomePage = () => {
 
   useEffect(() => {
     sanPhamService
-      .getListProduct()
+      .getAllProducts()
       .then((res) => {
         console.log(res.data.data);
 

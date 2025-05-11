@@ -14,5 +14,3 @@ export const danhMucService = {
     return http.delete(`/QuanLyDanhMuc/XoaDanhMuc/${id_category}`);
   },
 };
-  
-

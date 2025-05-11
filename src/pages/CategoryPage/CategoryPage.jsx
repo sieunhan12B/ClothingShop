@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { sanPhamService } from "../../services/product.service";
+import { sanPhamService } from "../../services/sanPham.service";
 import { Link } from "react-router-dom";
 import { Dropdown, Space } from "antd";
 import { DownOutlined } from "@ant-design/icons";
@@ -41,7 +41,7 @@ const CategoryPage = () => {
 
   useEffect(() => {
     sanPhamService
-      .getListProductByCategoryName(name_category)
+      .getProductByCategoryName(name_category)
       .then((res) => {
         console.log(res.data.data);
         showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);

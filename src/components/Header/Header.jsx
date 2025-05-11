@@ -3,13 +3,13 @@ import { path } from "../../common/path";
 import { Link } from "react-router-dom";
 import UserMenu from "../UserMenu/UserMenu";
 import "antd/dist/reset.css";
-import FormSearchProduct from "../FormSearchProduct/FormSearchProduct";
 import { danhMucService } from "../../services/danhMuc.service";
 import { Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { removeVietnameseTones } from "../../utils/removeVietnameseTones";
-import { donHangService } from "../../services/order.service";
+import { donHangService } from "../../services/donHang.service";
 import { NotificationContext } from "../../App";
+import FormSearchProductTwo from "../FormSearchProduct/FormSeacrchProductTwo";
 
 const Header = () => {
   const [categories, setCategories] = useState({});
@@ -18,12 +18,17 @@ const Header = () => {
 
   useEffect(() => {
     donHangService
-      .getProductsByCart(19, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+      .getProductsByCart(
+        19,
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxOSwiZW1haWwiOiJnaWFiYW9AZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDY5NzY2MzcsImV4cCI6MTc0NzU4MTQzN30.x6aCEYPyXh9_as4wqKFf4dYxKklG5Zh7-IsmkojCHTU"
+      )
       .then((res) => {
+        console.log(res);
         setOrder(res.data.data?.products || []);
         showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
       })
       .catch((err) => {
+        console.log(err);
         showNotification(
           err.response?.data?.message || "Lỗi không xác định",
           "error",
@@ -116,7 +121,7 @@ const Header = () => {
           </Link>
         </nav>
         <div className="flex items-center space-x-4">
-          <FormSearchProduct />
+          <FormSearchProductTwo />
           <div className="flex items-center space-x-2">
             <Link to={path.oderPage} className="relative">
               <i className="fas fa-shopping-cart"></i>

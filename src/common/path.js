@@ -5,7 +5,9 @@ export const path = {
   categoryPage: "/category/:name_category",
   managerUserPage: "manager-user",
   managerProductPage: "manager-product",
-
+  managerCategoryPage: "manager-category",
+  managerOrderPage: "manager-order",
+  managerGalleryPage: "manager-gallery",
   signUp: "/sign-up",
   showRoom: "/showroom",
   oderPage: "/oder",

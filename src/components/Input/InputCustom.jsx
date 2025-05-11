@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const InputCustom = ({
   labelContent,
@@ -33,7 +32,7 @@ const InputCustom = ({
         <input
           id={id}
           name={name}
-          type={showPassword ? "text" : typeInput === "password" ? "password" : typeInput}
+          type={typeInput}
           placeholder={placeholder}
           className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black sm:text-sm ${
             disabled ? "bg-gray-100 cursor-not-allowed opacity-75" : ""
@@ -47,9 +46,7 @@ const InputCustom = ({
           <span
             onClick={handleTogglePassword}
             className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-500 hover:text-gray-700"
-          >
-            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </span>
+          ></span>
         )}
       </div>
       {error && touched && <p className="mt-1 text-sm text-red-600">{error}</p>}

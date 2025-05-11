@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "antd";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 
 const FormSearchGallery = ({
   className = "mx-8",
@@ -43,10 +43,10 @@ const FormSearchGallery = ({
   );
 };
 
-FormSearchGallery.propTypes = {
-  className: PropTypes.string,
-  title: PropTypes.string,
-  onSearch: PropTypes.func,
-};
+// FormSearchGallery.propTypes = {
+//   className: PropTypes.string,
+//   title: PropTypes.string,
+//   onSearch: PropTypes.func,
+// };
 
 export default FormSearchGallery;
