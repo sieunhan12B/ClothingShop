@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { path } from "../../common/path";
 import { Link } from "react-router-dom";
 import UserMenu from "../UserMenu/UserMenu";
@@ -8,9 +8,29 @@ import { danhMucService } from "../../services/danhMuc.service";
 import { Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { removeVietnameseTones } from "../../utils/removeVietnameseTones";
+import { donHangService } from "../../services/order.service";
+import { NotificationContext } from "../../App";
 
 const Header = () => {
   const [categories, setCategories] = useState({});
+  const [order, setOrder] = useState([]);
+  const { showNotification } = useContext(NotificationContext);
+
+  useEffect(() => {
+    donHangService
+      .getProductsByCart(19, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+      .then((res) => {
+        setOrder(res.data.data?.products || []);
+        showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
+      })
+      .catch((err) => {
+        showNotification(
+          err.response?.data?.message || "Lỗi không xác định",
+          "error",
+          2000
+        );
+      });
+  }, []);
 
   useEffect(() => {
     danhMucService
@@ -32,7 +52,7 @@ const Header = () => {
         console.error("Error fetching categories:", err);
       })
       .finally(() => {
-        console.log("Fetch categories completed");
+        console.log("Fetch categories完成了");
       });
   }, []);
 
@@ -98,8 +118,13 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <FormSearchProduct />
           <div className="flex items-center space-x-2">
-            <Link to={path.oderPage}>
+            <Link to={path.oderPage} className="relative">
               <i className="fas fa-shopping-cart"></i>
+              {order.length > 0 && (
+                <span className="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                  {order.length}
+                </span>
+              )}
             </Link>
             <UserMenu
               to={path.logIn}
