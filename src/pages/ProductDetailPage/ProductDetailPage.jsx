@@ -2,13 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { sanPhamService } from "../../services/sanPham.service";
 import { Image } from "antd";
+import { toast } from "react-toastify";
+import { donHangService } from "../../services/donHang.service";
+import { getLocalStorage } from "../../utils/utils";
+import { useDispatch } from "react-redux"; // Thêm useDispatch
+import { addToCart, fetchCartProducts } from "../../redux/cartSlice"; // Thêm action
 
 const ProductDetailPage = () => {
   const { id_product } = useParams();
   const [product, setProduct] = useState(null);
   const [listProduct, setListProduct] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mainImage, setMainImage] = useState(""); // State for the main image
+  const [mainImage, setMainImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const dispatch = useDispatch(); // Sử dụng dispatch
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,10 +28,10 @@ const ProductDetailPage = () => {
 
         setProduct(productRes.data.data);
         setListProduct(listProductRes.data.data);
-        // Set initial main image
         setMainImage(productRes.data.data.gallery?.thumbnail[0] || "");
       } catch (err) {
         console.error("Error fetching data:", err);
+        toast.error("Lỗi khi tải dữ liệu sản phẩm!");
       } finally {
         setLoading(false);
       }
@@ -33,9 +40,63 @@ const ProductDetailPage = () => {
     fetchData();
   }, [id_product]);
 
-  // Handle thumbnail click to update main image
   const handleThumbnailClick = (image) => {
     setMainImage(image);
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value >= 1) {
+      setQuantity(value);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      const token = getLocalStorage("accessToken");
+      const user = getLocalStorage("user");
+      const id_user = user?.id_user;
+
+      if (!token || !id_user) {
+        toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!", {
+          autoClose: 2000,
+        });
+        return;
+      }
+
+      const payload = {
+        id_user: parseInt(id_user),
+        id_product: parseInt(id_product),
+        quantity,
+      };
+
+      await donHangService.addProductToCart(token, payload);
+      toast.success("Thêm sản phẩm vào giỏ hàng thành công!", {
+        autoClose: 2000,
+      });
+
+      // Dispatch addToCart để cập nhật Redux store ngay lập tức
+      dispatch(
+        addToCart({
+          product_id: parseInt(id_product),
+          quantity,
+          product_details: product, // Thêm thông tin sản phẩm để hiển thị
+        })
+      );
+
+      // Refetch toàn bộ giỏ hàng để đồng bộ với server
+      dispatch(
+        fetchCartProducts({
+          userId: id_user,
+          token,
+        })
+      );
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      const errorMessage =
+        err.response?.data?.message || "Lỗi khi thêm sản phẩm vào giỏ hàng!";
+      toast.error(errorMessage, { autoClose: 2000 });
+    }
   };
 
   if (loading) {
@@ -57,16 +118,13 @@ const ProductDetailPage = () => {
   return (
     <main className="flex-1 py-8">
       <div className="max-w-6xl mx-auto">
-        {/* Product Gallery and Details */}
         <div className="grid grid-cols-2 gap-8">
-          {/* Product Gallery */}
           <div>
             <Image
               src={mainImage}
               alt={product.title}
               className="w-full h-96 object-cover mb-4"
             />
-            {/* Thumbnail Gallery */}
             <div className="flex space-x-2 overflow-y-hidden overflow-x-auto">
               {product.gallery?.thumbnail?.map((image, index) => (
                 <div
@@ -80,13 +138,12 @@ const ProductDetailPage = () => {
                     src={image}
                     alt={`Thumbnail ${index + 1}`}
                     className="w-full h-full object-cover"
-                    preview={false} // Disable preview for thumbnails
+                    preview={false}
                   />
                 </div>
               ))}
             </div>
           </div>
-          {/* Product Details */}
           <div>
             <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
             <div className="flex items-center mb-4">
@@ -104,13 +161,24 @@ const ProductDetailPage = () => {
               </span>
             </div>
             <div className="text-xl my-2">{product.description}</div>
-
-            {/* Add to Cart Button */}
-            <button className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 mb-4">
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Số lượng:
+              </label>
+              <input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min="1"
+                className="w-20 border rounded px-2 py-1"
+              />
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 mb-4"
+            >
               Thêm vào giỏ hàng
             </button>
-
-            {/* Delivery and Showroom Info */}
             <div className="border-t pt-4">
               <h3 className="text-lg font-bold mb-2">Giao hàng & Đổi trả</h3>
               <p className="text-sm mb-2">
@@ -129,8 +197,6 @@ const ProductDetailPage = () => {
               </p>
               <p className="text-sm mb-2">Mở cửa showroom: 8h30 - 21h</p>
             </div>
-
-            {/* Additional Info */}
             <div className="border-t pt-4 mt-4">
               <h3 className="text-lg font-bold mb-2">Thông tin bổ sung</h3>
               <p className="text-sm mb-2">Mã sản phẩm: {product.id_product}</p>
@@ -143,8 +209,6 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Delivery and Return Policy */}
         <div className="mt-8 border-t pt-4">
           <h3 className="text-lg font-bold mb-2">Chính sách trả và đổi hàng</h3>
           <p className="text-sm">
@@ -157,8 +221,6 @@ const ProductDetailPage = () => {
             trả và đổi hàng tại đây.
           </p>
         </div>
-
-        {/* Related Products Section */}
         <section className="mt-8">
           <h2 className="text-xl font-bold text-center mb-4">
             Có thể bạn thích

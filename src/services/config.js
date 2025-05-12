@@ -1,5 +1,9 @@
 import axios from "axios";
-import { getLocalStorage, setLocalStorage, removeLocalStorage } from "../utils/utils";
+import {
+  getLocalStorage,
+  setLocalStorage,
+  removeLocalStorage,
+} from "../utils/utils";
 import { authService } from "./auth.service";
 
 // Cấu hình baseURL dựa trên môi trường
@@ -18,11 +22,9 @@ http.interceptors.request.use(
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
-    console.log("Request Headers:", config.headers);
     return config;
   },
   (error) => {
-    console.error("Request Error:", error.message);
     return Promise.reject(error);
   }
 );
@@ -30,7 +32,6 @@ http.interceptors.request.use(
 // Interceptor cho response
 http.interceptors.response.use(
   (response) => {
-    console.log("Response Data:", response.data);
     return response;
   },
   async (error) => {
@@ -52,7 +53,10 @@ http.interceptors.response.use(
 
         return http(originalRequest);
       } catch (refreshError) {
-        console.error("Refresh token error:", refreshError.response?.data || refreshError.message);
+        console.error(
+          "Refresh token error:",
+          refreshError.response?.data || refreshError.message
+        );
         console.log("Attempting to logout...");
 
         await authService.logout().catch((logoutError) => {
@@ -69,7 +73,6 @@ http.interceptors.response.use(
       }
     }
 
-    console.error("Response Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );

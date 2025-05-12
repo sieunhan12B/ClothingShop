@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { sanPhamService } from "../../services/sanPham.service";
 import { NotificationContext } from "../../App";
 import { Dropdown, Space } from "antd";
-import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 
 const ProductPage = () => {
   const { showNotification } = useContext(NotificationContext);
   const [products, setProducts] = useState([]);
-  const [listProduct, setListProduct] = useState([]);
+  const [sortOrder, setSortOrder] = useState(null);
+
   useEffect(() => {
     sanPhamService
       .getAllProducts()
@@ -22,36 +23,32 @@ const ProductPage = () => {
       });
   }, []);
 
+  const handleSort = (order) => {
+    const sortedProducts = [...products];
+    if (order === "asc") {
+      sortedProducts.sort((a, b) => a.price - b.price);
+    } else if (order === "desc") {
+      sortedProducts.sort((a, b) => b.price - a.price);
+    }
+    setProducts(sortedProducts);
+    setSortOrder(order);
+  };
+
   const items = [
     {
       key: "1",
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.antgroup.com"
-        >
-          Tăng dần{" "}
-        </a>
-      ),
+      label: "Tăng dần",
+      onClick: () => handleSort("asc"),
     },
     {
       key: "2",
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-        >
-          Giảm dần{" "}
-        </a>
-      ),
+      label: "Giảm dần",
+      onClick: () => handleSort("desc"),
     },
   ];
 
   return (
     <main className="flex-1">
-      {/* Top Sale Phái Mạnh Section */}
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-4">Sản phẩm</h2>
@@ -65,17 +62,33 @@ const ProductPage = () => {
               </a>
             </Dropdown>
           </div>
-          <div className="grid grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-4 gap-8 mb-8">
             {products.map((item, index) => (
-              <div key={index} className="text-center">
+              <div
+                key={index}
+                className="relative bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
                 <Link to={`/product-detail/${item.id_product}`}>
-                  <img
-                    src={item.gallery?.thumbnail[0]}
-                    alt={item.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <p className="mt-2">{item.title}</p>
-                  <p className="text-red-500 font-bold">{item.price}</p>
+                  <div className="relative w-full h-48">
+                    <img
+                      src={item.gallery?.thumbnail[0]}
+                      alt={item.title}
+                      className="w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-300 hover:opacity-0"
+                    />
+                    <img
+                      src={
+                        item.gallery?.thumbnail[1] || item.gallery?.thumbnail[0]
+                      }
+                      alt={item.title}
+                      className="w-full h-full object-cover absolute top-0 left-0 transition-opacity duration-300 opacity-0 hover:opacity-100"
+                    />
+                  </div>
+                  <div className="p-4 text-center">
+                    <p className="mt-2 text-gray-800 font-medium">
+                      {item.title}
+                    </p>
+                    <p className="text-red-500 font-bold">{item.price}</p>
+                  </div>
                 </Link>
               </div>
             ))}

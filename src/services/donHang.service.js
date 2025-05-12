@@ -33,4 +33,39 @@ export const donHangService = {
       },
     });
   },
+  addProductToCart: (token, payload) => {
+    return http.post(`/QuanLyOrders/ThemSanPhamVaoGioHang/`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+  updateProductInCart: (token, payload) => {
+    return http.put(`/QuanLyOrders/CapNhatSanPhamTrongGioHang`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+  deleteProductInCart: (token, id_user, id_product) => {
+    return http.delete(
+      `/QuanLyOrders/XoaSanPhamTrongGioHang/${id_user}/${id_product}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  },
+  getOrderByUser: (email, token, page = 1, limit = 10) => {
+    return http.get(`/QuanLyOrders/LayDanhSachDonHangCuaNguoiDung/${email}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        page,
+        limit,
+      },
+    });
+  },
 };

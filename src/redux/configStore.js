@@ -2,6 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import cartSlice from "./cartSlice";
 export const store = configureStore({
   reducer: {
-    cartSlice,
+    cart: cartSlice, // Gắn cartSlice với key "cart"
   },
 });

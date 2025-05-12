@@ -2,7 +2,7 @@ import { http } from "./config";
 
 export const sanPhamService = {
   getAllProducts: () => {
-    return http.get("/QuanLySanPham/LayDanhSachSanPham");
+    return http.get("/QuanLySanPham/LayTatCaSanPham");
   },
 
   getPaginatedData: (params = {}) => {
@@ -12,6 +12,11 @@ export const sanPhamService = {
     return http.get(`/QuanLySanPham/LayThongTinSanPhamTheoId/${id_product}`);
   },
   getProductByCategory: (id_category) => {
+    return http.get(
+      `/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}`
+    );
+  },
+  getProductByCategoryId: (id_category) => {
     return http.get(
       `/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}`
     );

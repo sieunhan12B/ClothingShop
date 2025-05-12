@@ -1,42 +1,73 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { donHangService } from "../services/donHang.service";
+
+// Async thunk để lấy danh sách sản phẩm từ API
+export const fetchCartProducts = createAsyncThunk(
+  "cart/fetchCartProducts",
+  async ({ userId, token }, { rejectWithValue }) => {
+    try {
+      const response = await donHangService.getProductsByCart(userId, token);
+      return response.data.data?.products || [];
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Lỗi không xác định"
+      );
+    }
+  }
+);
 
 const initialState = {
-  cart: [],
+  cartItems: [],
+  status: "idle", // Trạng thái: idle, loading, succeeded, failed
+  error: null,
 };
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      const existingItem = state.cart.find(
-        (item) => item.courseId === action.payload.courseId
+      const itemIndex = state.cartItems.findIndex(
+        (item) => item.product_id === action.payload.product_id
       );
-      if (existingItem) {
-        existingItem.quantity += 1;
+      if (itemIndex >= 0) {
+        state.cartItems[itemIndex].quantity += 1;
       } else {
-        state.cart.push({ ...action.payload, quantity: 1 });
-      }
-    },
-    updateQuantity: (state, action) => {
-      const { courseId, quantity } = action.payload;
-      const item = state.cart.find((item) => item.courseId === courseId);
-      if (item) {
-        item.quantity = quantity;
+        const tempProduct = { ...action.payload, quantity: 1 };
+        state.cartItems.push(tempProduct);
       }
     },
     removeFromCart: (state, action) => {
-      console.log(action.payload);
-      state.cart = state.cart.filter(
-        (item) => item.courseId !== action.payload.courseId
+      const nextCartItems = state.cartItems.filter(
+        (cartItem) => cartItem.product_id !== action.payload.id
       );
+      state.cartItems = nextCartItems;
     },
     clearCart: (state) => {
-      state.cart = [];
+      state.cartItems = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCartProducts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchCartProducts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cartItems = action.payload.map((item) => ({
+          ...item,
+          quantity: item.quantity || 1, // Đảm bảo mỗi item có quantity
+        }));
+      })
+      .addCase(fetchCartProducts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
   },
 });
 
-export const { addToCart, updateQuantity, removeFromCart, clearCart } =
-  cartSlice.actions;
+// Export các action
+export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
 
+// Export reducer
 export default cartSlice.reducer;

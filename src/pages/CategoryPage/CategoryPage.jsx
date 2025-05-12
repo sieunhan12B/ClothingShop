@@ -7,8 +7,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { NotificationContext } from "../../App";
 
 const CategoryPage = () => {
-  const { name_category } = useParams();
-  console.log(name_category);
+  const { id_category } = useParams();
   const [products, setProducts] = useState([]);
   const { showNotification } = useContext(NotificationContext);
 
@@ -41,7 +40,7 @@ const CategoryPage = () => {
 
   useEffect(() => {
     sanPhamService
-      .getProductByCategoryName(name_category)
+      .getProductByCategoryId(id_category)
       .then((res) => {
         console.log(res.data.data);
         showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
@@ -54,7 +53,7 @@ const CategoryPage = () => {
       .finally(() => {
         console.log("Fetch products by category completed");
       });
-  }, [name_category]);
+  }, [id_category]);
 
   return (
     <main className="flex-1">

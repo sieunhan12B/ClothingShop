@@ -18,6 +18,15 @@ import ManagerGalleryPage from "../pages/ManagerGalleryPage/ManagerGalleryPage.j
 import ShowRoomPage from "../pages/ShowRoomPage/ShowRoomPage.jsx";
 import OderPage from "../pages/OderPage/OderPage.jsx";
 import CategoryPage from "../pages/CategoryPage/CategoryPage.jsx";
+import CartPage from "../pages/CartPage/CartPage.jsx";
+import OrderTemplate from "../templates/OrderTemplate/OrderTemplate.jsx";
+import OrderAllPage from "../pages/OrderAllPage/OrderAllPage.jsx";
+import OrderConfirmedPage from "../pages/OrderConfirmedPage/OrderConfirmedPage.jsx";
+import OrderPendingPage from "../pages/OrderPendingPage/OrderPendingPage.jsx";
+import OrderCancelledPage from "../pages/OrderCancelledPage/OrderCancelledPage.jsx";
+import OrderDeliveredPage from "../pages/OrderDeliveredPage/OrderDeliveredPage.jsx";
+import OrderDeliveringPage from "../pages/OrderDeliveringPage/OrderDeliveringPage.jsx";
+import OrderFailedDeliveryPage from "../pages/OrderFailedDeliveryPage/OrderFailedDeliveryPage.jsx";
 
 const UseRoutesCustom = () => {
   const routes = useRoutes([
@@ -52,6 +61,40 @@ const UseRoutesCustom = () => {
         {
           path: path.categoryPage,
           element: <CategoryPage />,
+        },
+        {
+          path: path.cartPage,
+          element: <OrderTemplate />,
+          children: [
+            {
+              index: true,
+              element: <OrderAllPage />,
+            },
+            {
+              path: path.orderConfirmedPage,
+              element: <OrderConfirmedPage />,
+            },
+            {
+              path: path.orderPendingPage,
+              element: <OrderPendingPage />,
+            },
+            {
+              path: path.orderCancelledPage,
+              element: <OrderCancelledPage />,
+            },
+            {
+              path: path.orderDeliveredPage,
+              element: <OrderDeliveredPage />,
+            },
+            {
+              path: path.orderDeliveringPage,
+              element: <OrderDeliveringPage />,
+            },
+            {
+              path: path.orderFailedPage,
+              element: <OrderFailedDeliveryPage />,
+            },
+          ],
         },
       ],
     },
@@ -96,6 +139,10 @@ const UseRoutesCustom = () => {
     {
       path: path.signUp,
       element: <SignUpPage />,
+    },
+    {
+      path: "/don-hang",
+      element: <CartPage />,
     },
   ]);
   return routes;

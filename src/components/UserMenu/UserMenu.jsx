@@ -7,43 +7,44 @@ import { UserOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { NotificationContext } from "../../App";
 
-
 const UserMenu = ({
-  
   to = path.logIn,
   iconStyle = { fontSize: "20px", cursor: "pointer" },
 }) => {
   const { showNotification } = useContext(NotificationContext);
   const navigate = useNavigate();
   const user = getLocalStorage("user");
-  console.log("User from localStorage:", user);
-  console.log("Navigation to:", to);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    showNotification("Đăng xuất thành công","success");
+    showNotification("Đăng xuất thành công", "success");
     navigate(path.homePage);
   };
 
+  // Tạo userMenuItems động dựa trên user.role
   const userMenuItems = [
     {
       key: "1",
       label: "Thông tin cá nhân",
       onClick: () => navigate(path.myAccount),
     },
-    
-    {
-      key: "3",
-      label: "Trang quản lý ",
-      onClick: () => navigate(`${path.admin}/${path.managerUserPage}`),
-    },
+    // Chỉ thêm mục "Trang quản lý" nếu user.role là "admin"
+    ...(user?.role === "admin"
+      ? [
+          {
+            key: "3",
+            label: "Trang quản lý",
+            onClick: () => navigate(`${path.admin}/${path.managerUserPage}`),
+          },
+        ]
+      : []),
     {
       key: "2",
       label: "Đăng xuất",
       onClick: handleLogout,
     },
   ];
-    
+
   const isLoggedIn = user && user.role;
   return (
     <>

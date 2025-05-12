@@ -7,41 +7,48 @@ import { danhMucService } from "../../services/danhMuc.service";
 import { Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { removeVietnameseTones } from "../../utils/removeVietnameseTones";
-import { donHangService } from "../../services/donHang.service";
 import { NotificationContext } from "../../App";
 import FormSearchProductTwo from "../FormSearchProduct/FormSeacrchProductTwo";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCartProducts } from "../../redux/cartSlice";
+import { getLocalStorage } from "../../utils/utils";
 
 const Header = () => {
   const [categories, setCategories] = useState({});
-  const [order, setOrder] = useState([]);
   const { showNotification } = useContext(NotificationContext);
+  const dispatch = useDispatch();
+  const { cartItems, status, error } = useSelector((state) => state.cart);
+  const user = getLocalStorage("user");
+  const token = getLocalStorage("accessToken");
+  console.log(user);
 
+  // Kiểm tra đăng nhập trước khi gọi API
   useEffect(() => {
-    donHangService
-      .getProductsByCart(
-        19,
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxOSwiZW1haWwiOiJnaWFiYW9AZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDY5NzY2MzcsImV4cCI6MTc0NzU4MTQzN30.x6aCEYPyXh9_as4wqKFf4dYxKklG5Zh7-IsmkojCHTU"
-      )
-      .then((res) => {
-        console.log(res);
-        setOrder(res.data.data?.products || []);
-        showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
-      })
-      .catch((err) => {
-        console.log(err);
-        showNotification(
-          err.response?.data?.message || "Lỗi không xác định",
-          "error",
-          2000
-        );
-      });
-  }, []);
+    if (!token || !user || user.role !== "user") {
+      return; // Không gọi API nếu chưa đăng nhập
+    }
 
+    dispatch(
+      fetchCartProducts({
+        userId: user.id_user,
+        token: token,
+      })
+    );
+  }, [dispatch, token, user?.id_user, showNotification]);
+
+  // Hiển thị thông báo dựa trên trạng thái API
+  useEffect(() => {
+    if (status === "succeeded") {
+    } else if (status === "failed") {
+      showNotification(error || "Lỗi không xác định", "error", 2000);
+    }
+  }, [status, error, showNotification]);
+
+  // Lấy danh mục sản phẩm
   useEffect(() => {
     danhMucService
       .getCategory()
       .then((res) => {
-        console.log(res);
         // Lọc động các danh mục dựa trên từ khóa "Áo" và "Quần"
         const categorizedData = {
           Quần: res.data.data.filter((item) =>
@@ -57,7 +64,7 @@ const Header = () => {
         console.error("Error fetching categories:", err);
       })
       .finally(() => {
-        console.log("Fetch categories完成了");
+        console.log("Fetch categories completed");
       });
   }, []);
 
@@ -84,9 +91,7 @@ const Header = () => {
                         <ul className="space-y-2">
                           {items.map((item) => (
                             <Link
-                              to={
-                                "/category/" + removeVietnameseTones(item.name)
-                              }
+                              to={"/category/" + item.id_category}
                               key={item.id_category}
                               className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-md cursor-pointer group"
                             >
@@ -125,9 +130,10 @@ const Header = () => {
           <div className="flex items-center space-x-2">
             <Link to={path.oderPage} className="relative">
               <i className="fas fa-shopping-cart"></i>
-              {order.length > 0 && (
+
+              {user && status === "succeeded" && cartItems.length > 0 && (
                 <span className="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                  {order.length}
+                  {cartItems.length}
                 </span>
               )}
             </Link>
