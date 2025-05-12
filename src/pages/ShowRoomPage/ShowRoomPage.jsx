@@ -23,7 +23,7 @@ const ShowRoomPage = () => {
       {/* Banner */}
       <section className="">
         <img
-          src="./img/instagram8.jpg"
+          src="./img/banner.jpg"
           alt="Banner"
           className="w-full h-96 object-cover"
         />
@@ -33,7 +33,7 @@ const ShowRoomPage = () => {
         <section className="text-center mb-12">
           <h1 className="text-2xl font-bold mb-4">TÌM SHOWROOM</h1>
           <p className="text-gray-600 mb-4">
-            JUNO hiện đang có mặt tại 42 showroom trên toàn quốc. Hãy chọn địa
+            BAOANH hiện đang có mặt tại 42 showroom trên toàn quốc. Hãy chọn địa
             điểm showroom gần nhất!
           </p>
           <div className="flex justify-center space-x-4">
@@ -69,6 +69,20 @@ const ShowRoomPage = () => {
             >
               Tìm kiếm
             </button>
+          </div>
+          {/* Bản đồ */}
+          <div className="mt-6">
+            <iframe
+              title="Showroom Map"
+              width="100%"
+              height="400"
+              frameBorder="0"
+              style={{ border: 0 }}
+              src={
+                "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7838.540959297246!2d106.67182993859015!3d10.79058398612989!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1svi!2s!4v1747088826791!5m2!1svi!2s"
+              }
+              allowFullScreen
+            ></iframe>
           </div>
         </section>
 

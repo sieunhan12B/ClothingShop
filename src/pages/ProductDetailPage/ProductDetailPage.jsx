@@ -5,8 +5,8 @@ import { Image } from "antd";
 import { toast } from "react-toastify";
 import { donHangService } from "../../services/donHang.service";
 import { getLocalStorage } from "../../utils/utils";
-import { useDispatch } from "react-redux"; // Thêm useDispatch
-import { addToCart, fetchCartProducts } from "../../redux/cartSlice"; // Thêm action
+import { useDispatch } from "react-redux";
+import { addToCart, fetchCartProducts } from "../../redux/cartSlice";
 
 const ProductDetailPage = () => {
   const { id_product } = useParams();
@@ -15,7 +15,8 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const dispatch = useDispatch(); // Sử dụng dispatch
+  const [activeTab, setActiveTab] = useState("moTa"); // Quản lý tab: "moTa" hoặc "thongTin"
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,11 +45,8 @@ const ProductDetailPage = () => {
     setMainImage(image);
   };
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value >= 1) {
-      setQuantity(value);
-    }
+  const handleQuantityChange = (change) => {
+    setQuantity((prev) => Math.max(1, prev + change));
   };
 
   const handleAddToCart = async () => {
@@ -75,16 +73,14 @@ const ProductDetailPage = () => {
         autoClose: 2000,
       });
 
-      // Dispatch addToCart để cập nhật Redux store ngay lập tức
       dispatch(
         addToCart({
           product_id: parseInt(id_product),
           quantity,
-          product_details: product, // Thêm thông tin sản phẩm để hiển thị
+          product_details: product,
         })
       );
 
-      // Refetch toàn bộ giỏ hàng để đồng bộ với server
       dispatch(
         fetchCartProducts({
           userId: id_user,
@@ -160,18 +156,28 @@ const ProductDetailPage = () => {
                 Sale {product.discount}%
               </span>
             </div>
-            <div className="text-xl my-2">{product.description}</div>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">
                 Số lượng:
               </label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={handleQuantityChange}
-                min="1"
-                className="w-20 border rounded px-2 py-1"
-              />
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => handleQuantityChange(-1)}
+                  className="px-3 py-2 border rounded hover:bg-gray-100 disabled:opacity-50"
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <span className="text-lg font-medium w-12 text-center">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => handleQuantityChange(1)}
+                  className="px-3 py-2 border rounded hover:bg-gray-100"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <button
               onClick={handleAddToCart}
@@ -197,15 +203,49 @@ const ProductDetailPage = () => {
               </p>
               <p className="text-sm mb-2">Mở cửa showroom: 8h30 - 21h</p>
             </div>
-            <div className="border-t pt-4 mt-4">
-              <h3 className="text-lg font-bold mb-2">Thông tin bổ sung</h3>
-              <p className="text-sm mb-2">Mã sản phẩm: {product.id_product}</p>
-              <p className="text-sm mb-2">Thương hiệu: BAOANH</p>
-              <p className="text-sm mb-2">Loại: {product.category?.name}</p>
-              <p className="text-sm mb-2">Size: {product.size}</p>
-              <p className="text-sm mb-2">
-                Gợi ý bảo quản: Tránh tiếp xúc với nhiệt độ cao
-              </p>
+            <div className="mt-4">
+              <div className="flex border-b mb-2">
+                <button
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === "moTa"
+                      ? "border-b-2 border-black text-black"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab("moTa")}
+                >
+                  Mô tả
+                </button>
+                <button
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === "thongTin"
+                      ? "border-b-2 border-black text-black"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => setActiveTab("thongTin")}
+                >
+                  Thông tin bổ sung
+                </button>
+              </div>
+              {activeTab === "moTa" && (
+                <div className="text-sm">
+                  {product.description?.map((desc, index) => (
+                    <p key={index} className="mb-2">
+                      • {desc}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {activeTab === "thongTin" && (
+                <div className="text-sm">
+                  <p className="mb-2">Mã sản phẩm: {product.id_product}</p>
+                  <p className="mb-2">Thương hiệu: BAOANH</p>
+                  <p className="mb-2">Loại: {product.category?.name}</p>
+                  <p className="mb-2">Size: {product.size}</p>
+                  <p className="mb-2">
+                    Gợi ý bảo quản: Tránh tiếp xúc với nhiệt độ cao
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

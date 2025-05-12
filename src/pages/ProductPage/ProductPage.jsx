@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { sanPhamService } from "../../services/sanPham.service";
 import { NotificationContext } from "../../App";
@@ -9,29 +9,94 @@ const ProductPage = () => {
   const { showNotification } = useContext(NotificationContext);
   const [products, setProducts] = useState([]);
   const [sortOrder, setSortOrder] = useState(null);
+  const [page, setPage] = useState(1); // Theo dõi trang hiện tại
+  const [hasMore, setHasMore] = useState(true); // Kiểm tra còn dữ liệu để tải
+  const [loading, setLoading] = useState(false); // Trạng thái tải
+  const observerRef = useRef(null); // Ref để theo dõi phần tử cuối cùng
 
-  useEffect(() => {
-    sanPhamService
-      .getAllProducts()
-      .then((res) => {
-        console.log(res.data.data);
-        setProducts(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        showNotification("Lỗi kết nối", "error", 2000);
+  // Hàm gọi API phân trang
+  const fetchProducts = async (pageNum, reset = false) => {
+    try {
+      setLoading(true);
+      const res = await sanPhamService.getPaginatedData({
+        page: pageNum,
+        limit: 16,
       });
+      const newProducts = res.data.data || [];
+
+      // Nếu không còn sản phẩm, đặt hasMore thành false
+      if (newProducts.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      // Nếu reset (khi sắp xếp), thay thế dữ liệu; nếu không, nối thêm dữ liệu
+      setProducts((prev) =>
+        reset || pageNum === 1 ? newProducts : [...prev, ...newProducts]
+      );
+    } catch (err) {
+      console.log(err);
+      showNotification("Lỗi kết nối", "error", 2000);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Gọi API lần đầu khi component mount
+  useEffect(() => {
+    fetchProducts(page);
   }, []);
 
-  const handleSort = (order) => {
-    const sortedProducts = [...products];
-    if (order === "asc") {
-      sortedProducts.sort((a, b) => a.price - b.price);
-    } else if (order === "desc") {
-      sortedProducts.sort((a, b) => b.price - a.price);
+  // Thiết lập IntersectionObserver để phát hiện cuộn
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1); // Tăng trang
+        }
+      },
+      { threshold: 0.1 } // Kích hoạt khi 10% phần tử cuối cùng hiển thị
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
     }
-    setProducts(sortedProducts);
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [hasMore, loading]);
+
+  // Gọi API khi page thay đổi
+  useEffect(() => {
+    if (page > 1) {
+      fetchProducts(page);
+    }
+  }, [page]);
+
+  // Hàm sắp xếp sản phẩm theo giá
+  const handleSort = (order) => {
     setSortOrder(order);
+    setPage(1); // Reset page về 1 khi sắp xếp
+    setHasMore(true); // Reset hasMore để cho phép tải lại
+    setProducts([]); // Reset products để tải lại từ đầu
+
+    // Gọi lại API để lấy dữ liệu trang đầu tiên
+    fetchProducts(1, true).then(() => {
+      // Sau khi lấy dữ liệu, sắp xếp lại
+      setProducts((prev) => {
+        const sortedProducts = [...prev];
+        if (order === "asc") {
+          sortedProducts.sort((a, b) => a.price - b.price);
+        } else if (order === "desc") {
+          sortedProducts.sort((a, b) => b.price - a.price);
+        }
+        return sortedProducts;
+      });
+    });
   };
 
   const items = [
@@ -52,7 +117,7 @@ const ProductPage = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-4">Sản phẩm</h2>
-          <p className="text-center">{products.length} sản phẩm</p>
+          {/* <p className="text-center">{products.length} sản phẩm</p> */}
           <div className="text-right my-5">
             <Dropdown menu={{ items }}>
               <a onClick={(e) => e.preventDefault()}>
@@ -92,6 +157,14 @@ const ProductPage = () => {
                 </Link>
               </div>
             ))}
+          </div>
+          {/* Phần tử cuối cùng để theo dõi cuộn */}
+          <div
+            ref={observerRef}
+            className="h-10 flex justify-center items-center"
+          >
+            {loading && <p>Đang tải thêm sản phẩm...</p>}
+            {!hasMore && products.length > 0 && <p>Đã tải hết sản phẩm</p>}
           </div>
         </div>
       </section>

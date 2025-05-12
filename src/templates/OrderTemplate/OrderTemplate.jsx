@@ -13,7 +13,7 @@ const CanceledOrders = () => <div className="p-5">Đã hủy</div>;
 const OrderTemplate = () => {
   return (
     <div className="flex min-h-[calc(100vh-120px)] bg-gray-100">
-      <div className="w-64 bg-white p-5 border-r border-gray-200">
+      <div className="w-64 bg-white p-5 border-r border-gray-200 sticky top-20 h-[calc(100vh-120px)] overflow-y-auto">
         <ul className="list-none p-0">
           <li className="mb-2">
             <NavLink
@@ -102,7 +102,7 @@ const OrderTemplate = () => {
           </li>
         </ul>
       </div>
-      <div className="flex-1 p-5">
+      <div className="flex-1 p-5 overflow-y-auto">
         <Outlet />
       </div>
     </div>

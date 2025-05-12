@@ -89,6 +89,9 @@ const OrderAllPage = () => {
                         Kích thước: {product.product_details.size}
                       </p>
                       <p className="mt-1 text-gray-500">x{product.quantity}</p>
+                      <p className="mt-1 text-gray-500">
+                        Ghi chú: {order.note}
+                      </p>
                     </div>
                     <p className="font-bold text-black">
                       {Math.round(
@@ -115,14 +118,14 @@ const OrderAllPage = () => {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 font-medium">
+                  {/* <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 font-medium">
                     Mua Lại
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
           ))}
-          <div className="flex justify-center gap-3 mt-5">
+          {/* <div className="flex justify-center gap-3 mt-5">
             <button
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
@@ -140,7 +143,7 @@ const OrderAllPage = () => {
             >
               Sau
             </button>
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="p-5">Không có đơn hàng nào</div>

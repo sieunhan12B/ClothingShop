@@ -27,7 +27,7 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-2">Hệ Thống Showroom</h3>
             <img
-              src="./img/instagram5.jpg"
+              src="./img/showroom.jpg"
               alt="Không gian trưng bày hiện đại"
               className="w-full h-48 object-cover rounded"
             />
@@ -40,7 +40,7 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-2">Fanpage Của Chúng Tôi</h3>
             <img
-              src="./img/instagram6.jpg"
+              src="./img/fanpage.jpg"
               alt="Không gian trưng bày hiện đại"
               className="w-full h-48 object-cover rounded"
             />

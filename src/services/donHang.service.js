@@ -68,4 +68,11 @@ export const donHangService = {
       },
     });
   },
+  checkOut: (token, payload) => {
+    return http.post(`/QuanLyOrders/DatHang`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 };

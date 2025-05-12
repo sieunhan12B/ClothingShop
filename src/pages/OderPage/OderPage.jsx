@@ -6,20 +6,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { getLocalStorage } from "../../utils/utils";
 import { FaTrash } from "react-icons/fa";
 import { path } from "../../common/path";
-import { useDispatch } from "react-redux"; // Thêm useDispatch
-import { removeFromCart, fetchCartProducts } from "../../redux/cartSlice"; // Thêm action
+import { useDispatch } from "react-redux";
+import { removeFromCart, fetchCartProducts } from "../../redux/cartSlice";
+import { Modal } from "antd";
 
 const OrderPage = () => {
   const { showNotification } = useContext(NotificationContext);
   const [products, setProducts] = useState([]);
   const [order, setOrder] = useState([]);
   const [note, setNote] = useState("");
+  const [modalNote, setModalNote] = useState("");
   const [shippingOption, setShippingOption] = useState("free");
   const [isLoading, setIsLoading] = useState(false);
-  const [initialToken, setInitialToken] = useState(getLocalStorage("accessToken"));
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [initialToken, setInitialToken] = useState(
+    getLocalStorage("accessToken")
+  );
   const [initialUser, setInitialUser] = useState(getLocalStorage("user"));
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Sử dụng dispatch
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!initialToken || !initialUser) {
@@ -31,12 +36,19 @@ const OrderPage = () => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const res = await donHangService.getProductsByCart(initialUser?.id_user, initialToken);
+        const res = await donHangService.getProductsByCart(
+          initialUser?.id_user,
+          initialToken
+        );
         console.log("Initial fetch response:", res);
         setOrder(res.data.data?.products || []);
       } catch (err) {
         console.error("Initial fetch error:", err);
-        showNotification(err.response?.data?.message || "Lỗi không xác định", "error", 2000);
+        showNotification(
+          err.response?.data?.message || "Lỗi không xác định",
+          "error",
+          2000
+        );
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +65,11 @@ const OrderPage = () => {
         setProducts(res.data.data);
       } catch (err) {
         console.error("Products fetch error:", err);
-        showNotification(err.response?.data?.message || "Lỗi không xác định", "error", 2000);
+        showNotification(
+          err.response?.data?.message || "Lỗi không xác định",
+          "error",
+          2000
+        );
       }
     };
 
@@ -62,7 +78,11 @@ const OrderPage = () => {
 
   const handleQuantityChange = async (productId, change) => {
     if (!initialToken || !initialUser) {
-      showNotification("Vui lòng đăng nhập để cập nhật giỏ hàng!", "error", 2000);
+      showNotification(
+        "Vui lòng đăng nhập để cập nhật giỏ hàng!",
+        "error",
+        2000
+      );
       setTimeout(() => navigate(path.logIn), 2000);
       return;
     }
@@ -75,7 +95,9 @@ const OrderPage = () => {
 
     setOrder((prevOrder) =>
       prevOrder.map((item) =>
-        item.product_id === productId ? { ...item, quantity: newQuantity } : item
+        item.product_id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
       )
     );
     setIsLoading(true);
@@ -87,18 +109,27 @@ const OrderPage = () => {
     };
 
     try {
-      const res = await donHangService.updateProductInCart(initialToken, payload);
+      const res = await donHangService.updateProductInCart(
+        initialToken,
+        payload
+      );
       console.log("Quantity update response:", res);
       await loadDataGioHang();
       showNotification("Cập nhật số lượng thành công", "success", 2000);
     } catch (err) {
       setOrder((prevOrder) =>
         prevOrder.map((item) =>
-          item.product_id === productId ? { ...item, quantity: currentItem.quantity } : item
+          item.product_id === productId
+            ? { ...item, quantity: currentItem.quantity }
+            : item
         )
       );
       console.error("Quantity update error:", err);
-      showNotification(err.response?.data?.message || "Lỗi khi cập nhật số lượng", "error", 2000);
+      showNotification(
+        err.response?.data?.message || "Lỗi khi cập nhật số lượng",
+        "error",
+        2000
+      );
     } finally {
       setIsLoading(false);
     }
@@ -120,16 +151,23 @@ const OrderPage = () => {
       .deleteProductInCart(initialToken, initialUser.id_user, productId)
       .then((res) => {
         console.log("Delete API response:", res);
-        // Dispatch removeFromCart để cập nhật Redux store
         dispatch(removeFromCart({ id: productId }));
-        // Refetch toàn bộ giỏ hàng để đồng bộ với server
-        dispatch(fetchCartProducts({ userId: initialUser.id_user, token: initialToken }));
+        dispatch(
+          fetchCartProducts({
+            userId: initialUser.id_user,
+            token: initialToken,
+          })
+        );
         showNotification("Xóa sản phẩm thành công", "success", 2000);
       })
       .catch((err) => {
         setOrder(previousOrder);
         console.error("Delete error:", err);
-        showNotification(err.response?.data?.message || "Lỗi khi xóa sản phẩm", "error", 2000);
+        showNotification(
+          err.response?.data?.message || "Lỗi khi xóa sản phẩm",
+          "error",
+          2000
+        );
       })
       .finally(() => setIsLoading(false));
   };
@@ -138,12 +176,19 @@ const OrderPage = () => {
     if (!initialToken || !initialUser) return;
     setIsLoading(true);
     try {
-      const res = await donHangService.getProductsByCart(initialUser?.id_user, initialToken);
+      const res = await donHangService.getProductsByCart(
+        initialUser?.id_user,
+        initialToken
+      );
       console.log("Refetch cart response:", res);
       setOrder(res.data.data?.products || []);
     } catch (err) {
       console.error("Refetch cart error:", err);
-      showNotification(err.response?.data?.message || "Lỗi không xác định", "error", 2000);
+      showNotification(
+        err.response?.data?.message || "Lỗi không xác định",
+        "error",
+        2000
+      );
     } finally {
       setIsLoading(false);
     }
@@ -152,12 +197,55 @@ const OrderPage = () => {
   const subtotal = order.reduce(
     (acc, item) =>
       acc +
-      item.quantity * item.product_details?.price * (1 - item.product_details?.discount / 100),
+      item.quantity *
+        item.product_details?.price *
+        (1 - item.product_details?.discount / 100),
     0
   );
 
   const shippingFee = shippingOption === "free" ? 0 : 20000;
   const total = subtotal + shippingFee;
+
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        id_user: initialUser.id_user,
+        note: modalNote || note, // Sử dụng note từ modal hoặc note ban đầu nếu modal để trống
+      };
+      await donHangService.checkOut(initialToken, payload);
+      showNotification("Thanh toán thành công!", "success", 2000);
+      setOrder([]); // Xóa giỏ hàng sau khi thanh toán
+      setTimeout(() => navigate(path.cartPage), 2000); // Chuyển sang trang cartPage
+    } catch (err) {
+      console.error("Checkout error:", err);
+      showNotification(
+        err.response?.data?.message || "Lỗi khi thanh toán",
+        "error",
+        2000
+      );
+    } finally {
+      setIsLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+
+  const showModal = () => {
+    if (order.length === 0) {
+      showNotification(
+        "Giỏ hàng trống, vui lòng thêm sản phẩm!",
+        "error",
+        2000
+      );
+      return;
+    }
+    setModalNote(note); // Đặt note ban đầu từ state vào modal
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <main className="max-w-6xl mx-auto py-8">
@@ -174,7 +262,7 @@ const OrderPage = () => {
       <div className="flex space-x-8">
         <div className="flex-1">
           <p className="text-sm text-gray-500 mb-4">
-            Đăng nhập để tích điểm và ưu đãi thành viên tại JUNO
+            Đăng nhập để tích điểm và ưu đãi thành viên tại BAOANH
           </p>
 
           {order.map((item) => (
@@ -189,7 +277,9 @@ const OrderPage = () => {
               />
               <div className="flex-1 ml-4">
                 <h3 className="font-semibold">{item.product_details?.title}</h3>
-                <p className="text-gray-500">Size: {item.product_details?.size}</p>
+                <p className="text-gray-500">
+                  Size: {item.product_details?.size}
+                </p>
                 <div className="flex items-center mt-2 space-x-4">
                   <div className="flex items-center">
                     <button
@@ -270,23 +360,95 @@ const OrderPage = () => {
               <span>Phí vận chuyển:</span>
               <span>{shippingFee.toLocaleString()}đ</span>
             </div>
-
             <div className="flex justify-between font-bold text-lg border-t pt-2">
               <span>Tổng tiền:</span>
               <span>{total.toLocaleString()}đ</span>
             </div>
 
-            <Link to={path.cartPage}>
-              <button
-                className="w-full bg-black text-white py-3 rounded mt-4 hover:bg-gray-800 disabled:opacity-50 transition-colors"
-                disabled={isLoading}
-              >
-                THANH TOÁN
-              </button>
-            </Link>
+            <button
+              onClick={showModal}
+              className="w-full bg-black text-white py-3 rounded mt-4 hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              disabled={isLoading}
+            >
+              THANH TOÁN
+            </button>
           </div>
         </div>
       </div>
+
+      <Modal
+        title="Xác nhận thanh toán"
+        open={isModalVisible}
+        onOk={handleCheckout}
+        onCancel={handleCancel}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        okButtonProps={{
+          style: {
+            backgroundColor: "#000",
+            borderColor: "#000",
+            color: "#fff",
+          },
+        }}
+        cancelButtonProps={{ style: { borderColor: "#000", color: "#000" } }}
+      >
+        <div className="max-h-[400px] overflow-y-auto">
+          <h3 className="font-semibold mb-2">Thông tin đơn hàng:</h3>
+          {order.map((item) => (
+            <div
+              key={item.product_id}
+              className="flex items-center border-b py-2"
+            >
+              <img
+                src={item.product_details?.thumbnail[0]}
+                alt={item.product_details?.title}
+                className="w-12 h-12 object-cover rounded"
+              />
+              <div className="flex-1 ml-3">
+                <p className="font-medium">{item.product_details?.title}</p>
+                <p className="text-gray-500 text-sm">
+                  Size: {item.product_details?.size}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  Số lượng: {item.quantity}
+                </p>
+              </div>
+              <p className="font-medium">
+                {(
+                  item.product_details?.price *
+                  item.quantity *
+                  (1 - item.product_details?.discount / 100)
+                ).toLocaleString()}
+                đ
+              </p>
+            </div>
+          ))}
+          <div className="mt-4">
+            <p className="flex justify-between">
+              <span>Tổng tiền hàng:</span>
+              <span>{subtotal.toLocaleString()}đ</span>
+            </p>
+            <p className="flex justify-between">
+              <span>Phí vận chuyển:</span>
+              <span>{shippingFee.toLocaleString()}đ</span>
+            </p>
+            <p className="flex justify-between font-bold text-lg border-t pt-2">
+              <span>Tổng tiền:</span>
+              <span>{total.toLocaleString()}đ</span>
+            </p>
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Ghi chú:</label>
+              <textarea
+                value={modalNote}
+                onChange={(e) => setModalNote(e.target.value)}
+                placeholder="Nhập ghi chú cho đơn hàng (ví dụ: Trước khi giao nhớ kêu shipper gọi tôi)..."
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-gray-200"
+                rows="3"
+              />
+            </div>
+          </div>
+        </div>
+      </Modal>
     </main>
   );
 };
