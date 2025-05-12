@@ -23,7 +23,7 @@ const validationSchema = Yup.object({
     .transform((value, originalValue) => (originalValue === "" ? null : value)) // Chuyển "" thành null
     .min(0, "Giảm giá không được nhỏ hơn 0")
     .max(99, "Giảm giá phải nhỏ hơn 100")
-    .typeError("Giảm giá phải là số"), // Kiểm tra nhập chữ
+    .typeError("Giảm giá phải là số"),
   size: Yup.string().required("Kích thước không được để trống"),
   description: Yup.string()
     .required("Mô tả là bắt buộc")
@@ -52,7 +52,7 @@ const FormAddProduct = ({
       id_gallery: "",
       title: "",
       price: "",
-      discount: "", // Để trống mặc định
+      discount: "",
       size: "",
       description: "",
       file: null,
@@ -79,21 +79,25 @@ const FormAddProduct = ({
         return;
       }
 
+      // Kiểm tra description là chuỗi trước khi gửi
+      if (typeof values.description !== "string") {
+        showNotification("Mô tả phải là chuỗi văn bản", "error");
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append("id_category", values.id_category);
       formData.append("id_gallery", values.id_gallery);
       formData.append("title", values.title);
       formData.append("price", values.price);
-      // Chỉ thêm discount nếu có giá trị
       if (values.discount !== "" && values.discount !== null) {
         formData.append("discount", values.discount);
       }
       formData.append("size", values.size);
       formData.append("description", values.description);
 
-      for (let pair of formData.entries()) {
-        console.log("FormData:", pair[0] + ": " + pair[1]);
-      }
+      console.log("Submitting description:", values.description);
 
       const serviceCall = productData
         ? () => sanPhamService.updateProduct(productData.id_product, formData)
@@ -153,9 +157,11 @@ const FormAddProduct = ({
         id_gallery: productData.id_gallery || "",
         title: productData.title || "",
         price: productData.price || "",
-        discount: productData.discount !== null ? productData.discount : "", // Đảm bảo hiển thị đúng giá trị discount
+        discount: productData.discount !== null ? productData.discount : "",
         size: productData.size || "",
-        description: productData.description || "",
+        description: Array.isArray(productData.description)
+          ? productData.description.join(". ")
+          : productData.description || "",
         file: null,
       });
       if (productData.gallery?.thumbnail?.length) {

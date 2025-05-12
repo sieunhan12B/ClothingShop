@@ -2,7 +2,7 @@ import { http } from "./config";
 
 export const sanPhamService = {
   getAllProducts: () => {
-    return http.get("/QuanLySanPham/LayDanhSachSanPham");
+    return http.get("/QuanLySanPham/LayTatCaSanPham");
   },
 
   getPaginatedData: (params = {}) => {
@@ -11,9 +11,10 @@ export const sanPhamService = {
   getProductById: (id_product) => {
     return http.get(`/QuanLySanPham/LayThongTinSanPhamTheoId/${id_product}`);
   },
-  getProductByCategory: (id_category) => {
+  getProductByCategory: (id_category, params = {}) => {
+    const query = new URLSearchParams(params).toString();
     return http.get(
-      `/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}`
+      `/QuanLySanPham/LayDanhSachSanPhamTheoDanhMuc/${id_category}${query ? `?${query}` : ""}`
     );
   },
   getProductByName: (title) => {
@@ -46,11 +47,12 @@ export const sanPhamService = {
   getAllCategory: () => {
     return http.get("/QuanLySanPham/LayDanhSachDanhMuc");
   },
-  getProductByCategoryName: (name_category) => {
+  getProductByCategoryName: (name_category, params = {}) => {
+    const query = new URLSearchParams(params).toString();
     return http.get(
       `/QuanLySanPham/LayDanhSachSanPhamTheoTenDanhMuc/${encodeURIComponent(
         name_category
-      )}`
+      )}${query ? `?${query}` : ""}`
     );
   },
   searchProducts: (keyword, params = {}) => {

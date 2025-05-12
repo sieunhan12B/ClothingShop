@@ -36,20 +36,22 @@ const ManagerProductPage = () => {
         limit: pageSize,
       };
 
+      let selectedCategoryId = null;
       if (selectedCategory) {
         const selectedCategoryObj = categories.find(
           (cat) => cat.name === selectedCategory
         );
         if (selectedCategoryObj) {
-          params.id_category = selectedCategoryObj.id_category;
+          selectedCategoryId = selectedCategoryObj.id_category;
+          params.id_category = selectedCategoryId;
         }
       }
 
       let apiCall;
       if (searchKeyword) {
         apiCall = sanPhamService.searchProducts(searchKeyword, params);
-      } else if (selectedCategory) {
-        apiCall = sanPhamService.getProductByCategoryName(selectedCategory, params);
+      } else if (selectedCategoryId) {
+        apiCall = sanPhamService.getProductByCategory(selectedCategoryId, params);
       } else {
         apiCall = sanPhamService.getPaginatedData(params);
       }
@@ -103,7 +105,10 @@ const ManagerProductPage = () => {
         setCategories(res.data.data || []);
       })
       .catch((err) => {
-        showNotification(err.response?.data?.message || "Lỗi khi lấy danh mục", "error");
+        showNotification(
+          err.response?.data?.message || "Lỗi khi lấy danh mục",
+          "error"
+        );
       });
 
     fetchProducts();
@@ -127,6 +132,11 @@ const ManagerProductPage = () => {
 
   const handleSearch = (searchTerm) => {
     debouncedSearch(searchTerm);
+  };
+
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi danh mục
   };
 
   const showModal = (product = null) => {
@@ -156,11 +166,12 @@ const ManagerProductPage = () => {
     let thumbnailUrls = [];
     if (thumbnail) {
       try {
-        thumbnailUrls = typeof thumbnail === "string"
-          ? JSON.parse(thumbnail)
-          : Array.isArray(thumbnail)
-          ? thumbnail
-          : [thumbnail];
+        thumbnailUrls =
+          typeof thumbnail === "string"
+            ? JSON.parse(thumbnail)
+            : Array.isArray(thumbnail)
+            ? thumbnail
+            : [thumbnail];
       } catch (e) {
         console.error("Error parsing thumbnail:", e);
         thumbnailUrls = Array.isArray(thumbnail) ? thumbnail : [thumbnail];
@@ -212,17 +223,22 @@ const ManagerProductPage = () => {
         let thumbnailUrls = [];
         if (gallery?.thumbnail) {
           try {
-            thumbnailUrls = typeof gallery.thumbnail === "string"
-              ? JSON.parse(gallery.thumbnail)
-              : Array.isArray(gallery.thumbnail)
-              ? gallery.thumbnail
-              : [gallery.thumbnail];
+            thumbnailUrls =
+              typeof gallery.thumbnail === "string"
+                ? JSON.parse(gallery.thumbnail)
+                : Array.isArray(gallery.thumbnail)
+                ? gallery.thumbnail
+                : [gallery.thumbnail];
           } catch (e) {
             console.error("Error parsing thumbnail:", e);
-            thumbnailUrls = Array.isArray(gallery.thumbnail) ? gallery.thumbnail : [gallery.thumbnail];
+            thumbnailUrls = Array.isArray(gallery.thumbnail)
+              ? gallery.thumbnail
+              : [gallery.thumbnail];
           }
         }
-        const previewImage = thumbnailUrls[0] || "https://via.placeholder.com/100x75?text=No+Image";
+        const previewImage =
+          thumbnailUrls[0] ||
+          "https://via.placeholder.com/100x75?text=No+Image";
         return (
           <div className="flex justify-center">
             <Image
@@ -250,6 +266,29 @@ const ManagerProductPage = () => {
       dataIndex: "description",
       key: "description",
       align: "center",
+      render: (description) => {
+        let descriptionItems = [];
+
+        if (Array.isArray(description) && description.length > 0) {
+          descriptionItems = description;
+        } else if (typeof description === "string" && description.trim()) {
+          descriptionItems = description
+            .split(/\.|,|(?<!\d)\n/)
+            .filter(Boolean)
+            .map((item) => item.trim());
+        }
+
+        if (descriptionItems.length > 0) {
+          return (
+            <ul>
+              {descriptionItems.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+        return "Không có mô tả";
+      },
     },
     {
       title: "Ngày tạo",
@@ -290,7 +329,10 @@ const ManagerProductPage = () => {
                   onFinish();
                 })
                 .catch((err) => {
-                  console.error("Delete Product Error:", err.response?.data || err.message);
+                  console.error(
+                    "Delete Product Error:",
+                    err.response?.data || err.message
+                  );
                   showNotification(
                     err.response?.data?.message || "Lỗi xóa sản phẩm",
                     "error"
@@ -318,7 +360,7 @@ const ManagerProductPage = () => {
           <Select
             placeholder="Chọn danh mục"
             style={{ width: 200 }}
-            onChange={(value) => setSelectedCategory(value)}
+            onChange={handleCategoryChange}
             value={selectedCategory}
             allowClear
           >
