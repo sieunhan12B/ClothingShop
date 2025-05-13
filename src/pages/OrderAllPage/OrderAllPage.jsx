@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { donHangService } from "../../services/donHang.service";
+import { getLocalStorage } from "../../utils/utils";
 
 const OrderAllPage = () => {
   const [orders, setOrders] = useState([]);
@@ -10,21 +11,20 @@ const OrderAllPage = () => {
     totalPages: 1,
     pageSize: 10,
   });
+  const user = getLocalStorage("user");
+  const userToken = getLocalStorage("accessToken");
 
   const fetchOrders = async (page = 1) => {
     try {
       setLoading(true);
-      const token = "your-token-here"; // Replace with actual token from context/auth
-      const email = "giabao@gmail.com"; // Replace with actual user email from context/auth
+      const token = userToken ? userToken : ""; // Replace with actual token from context/auth
+      const email = user ? user.email : ""; // Replace with actual user email from context/auth
       const response = await donHangService.getOrderByUser(
         email,
         token,
         page,
         pagination.pageSize
       );
-      console.log(token);
-      console.log(email);
-      console.log(response.data);
 
       setOrders(response.data.data || []);
       setPagination({

@@ -20,7 +20,6 @@ const Header = () => {
   const { cartItems, status, error } = useSelector((state) => state.cart);
   const user = getLocalStorage("user");
   const token = getLocalStorage("accessToken");
-  console.log(user);
 
   // Kiểm tra đăng nhập trước khi gọi API
   useEffect(() => {

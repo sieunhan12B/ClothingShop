@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { donHangService } from "../../services/donHang.service";
+import { getLocalStorage } from "../../utils/utils";
 
 const OrderDeliveredPage = () => {
   const [orders, setOrders] = useState([]);
@@ -10,22 +11,21 @@ const OrderDeliveredPage = () => {
     totalPages: 1,
     pageSize: 10,
   });
+  const user = getLocalStorage("user");
+  const userToken = getLocalStorage("accessToken");
 
   const fetchOrders = async (page = 1) => {
     try {
       setLoading(true);
-      const token = "your-token-here"; // Replace with actual token from context/auth
-      const email = "giabao@gmail.com"; // Replace with actual user email from context/auth
+      const token = userToken ? userToken : ""; // Replace with actual token from context/auth
+      const email = user ? user.email : ""; // Replace with actual user email from context/auth
       const response = await donHangService.getOrderByUser(
         email,
         token,
         page,
         pagination.pageSize
       );
-      console.log(token);
-      console.log(email);
-      console.log(response.data);
-
+     
       const filteredOrders = response.data.data.filter(
         (order) => order.status === "delivered"
       );
@@ -92,7 +92,7 @@ const OrderDeliveredPage = () => {
                         Kích thước: {product.product_details.size}
                       </p>
                       <p className="mt-1 text-gray-500">x{product.quantity}</p>
-                       <p className="mt-1 text-gray-500">
+                      <p className="mt-1 text-gray-500">
                         Ghi chú: {order.note}
                       </p>
                     </div>
