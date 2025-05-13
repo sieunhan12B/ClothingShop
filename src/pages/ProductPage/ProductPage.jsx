@@ -13,6 +13,7 @@ const ProductPage = () => {
   const [hasMore, setHasMore] = useState(true); // Kiểm tra còn dữ liệu để tải
   const [loading, setLoading] = useState(false); // Trạng thái tải
   const observerRef = useRef(null); // Ref để theo dõi phần tử cuối cùng
+  const [totalItems, setTotalItems] = useState(0); // Tổng số sản phẩm
 
   // Hàm gọi API phân trang
   const fetchProducts = async (pageNum, reset = false) => {
@@ -23,7 +24,7 @@ const ProductPage = () => {
         limit: 16,
       });
       const newProducts = res.data.data || [];
-
+      setTotalItems(res.data.pagination.totalItems); // Cập nhật tổng số sản phẩm
       // Nếu không còn sản phẩm, đặt hasMore thành false
       if (newProducts.length === 0) {
         setHasMore(false);
@@ -117,7 +118,7 @@ const ProductPage = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-4">Sản phẩm</h2>
-          {/* <p className="text-center">{products.length} sản phẩm</p> */}
+          <p className="text-center">{totalItems} sản phẩm</p>
           <div className="text-right my-5">
             <Dropdown menu={{ items }}>
               <a onClick={(e) => e.preventDefault()}>

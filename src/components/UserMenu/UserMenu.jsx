@@ -28,6 +28,16 @@ const UserMenu = ({
       label: "Thông tin cá nhân",
       onClick: () => navigate(path.myAccount),
     },
+    // Chỉ thêm mục "Đơn hàng" nếu user.role là "user"
+    ...(user?.role === "user"
+      ? [
+          {
+            key: "4",
+            label: "Đơn hàng",
+            onClick: () => navigate(path.cartPage),
+          },
+        ]
+      : []),
     // Chỉ thêm mục "Trang quản lý" nếu user.role là "admin"
     ...(user?.role === "admin"
       ? [

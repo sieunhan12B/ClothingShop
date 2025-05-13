@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { sanPhamService } from "../../services/sanPham.service";
 import { Link } from "react-router-dom";
@@ -10,24 +10,78 @@ const CategoryPage = () => {
   const { id_category } = useParams();
   const [products, setProducts] = useState([]);
   const [sortOrder, setSortOrder] = useState(null);
+  const [page, setPage] = useState(1); // Theo dõi trang hiện tại
+  const [hasMore, setHasMore] = useState(true); // Kiểm tra còn dữ liệu để tải
+  const [loading, setLoading] = useState(false); // Trạng thái tải
   const { showNotification } = useContext(NotificationContext);
-
-  useEffect(() => {
-    sanPhamService
-      .getProductByCategory(id_category, { limit: 100 })
-      .then((res) => {
-        console.log(res.data.data);
-        showNotification("Lấy danh sách sản phẩm thành công", "success", 2000);
-        setProducts(res.data.data);
-      })
-      .catch((err) => {
-        console.error(err.response.data.message, err);
-        showNotification(err.response.data.message, "error", 2000);
-      })
-      .finally(() => {
-        console.log("Fetch products by category completed");
+  const observerRef = useRef(null); // Ref để theo dõi phần tử cuối cùng
+  const [totalItems, setTotalItems] = useState(0); // Tổng số sản phẩm
+  // Hàm gọi API phân trang theo danh mục
+  const fetchProductsByCategory = async (pageNum) => {
+    try {
+      setLoading(true);
+      const res = await sanPhamService.getProductByCategory(id_category, {
+        page: pageNum,
+        limit: 16,
       });
+      const newProducts = res.data.data || [];
+      setTotalItems(res.data.pagination.totalItems); // Cập nhật tổng số sản phẩm
+
+      // Nếu không còn sản phẩm, đặt hasMore thành false
+      if (newProducts.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      // Nếu là trang đầu tiên, thay thế dữ liệu; nếu không, nối thêm dữ liệu
+      setProducts((prev) =>
+        pageNum === 1 ? newProducts : [...prev, ...newProducts]
+      );
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message, err);
+      showNotification("Lỗi kết nối", "error", 2000);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Gọi API lần đầu khi id_category thay đổi
+  useEffect(() => {
+    setPage(1); // Reset page về 1 khi id_category thay đổi
+    setProducts([]); // Reset danh sách sản phẩm
+    setHasMore(true); // Reset hasMore
+    fetchProductsByCategory(1);
   }, [id_category]);
+
+  // Thiết lập IntersectionObserver để phát hiện cuộn
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1); // Tăng trang
+        }
+      },
+      { threshold: 0.1 } // Kích hoạt khi 10% phần tử cuối cùng hiển thị
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [hasMore, loading]);
+
+  // Gọi API khi page thay đổi
+  useEffect(() => {
+    if (page > 1) {
+      fetchProductsByCategory(page);
+    }
+  }, [page]);
 
   // Hàm sắp xếp sản phẩm theo giá
   const handleSort = (order) => {
@@ -37,7 +91,7 @@ const CategoryPage = () => {
       if (order === "asc") {
         sortedProducts.sort((a, b) => a.price - b.price);
       } else if (order === "desc") {
-        sortedProducts.sort((a, b) => b.price - a.price);
+        sortedProducts.sort((a, b) => b.price - b.price);
       }
       return sortedProducts;
     });
@@ -62,9 +116,9 @@ const CategoryPage = () => {
       <section className="py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-4">
-            {products[0]?.category.name}
+            {products[0]?.category?.name || "Danh mục"}
           </h2>
-          <p className="text-center">{products.length} sản phẩm</p>
+          <p className="text-center">{totalItems} sản phẩm</p>
           <div className="text-right my-5">
             <Dropdown menu={{ items }}>
               <a onClick={(e) => e.preventDefault()}>
@@ -104,6 +158,14 @@ const CategoryPage = () => {
                 </Link>
               </div>
             ))}
+          </div>
+          {/* Phần tử cuối cùng để theo dõi cuộn */}
+          <div
+            ref={observerRef}
+            className="h-10 flex justify-center items-center"
+          >
+            {loading && <p>Đang tải thêm sản phẩm...</p>}
+            {!hasMore && products.length > 0 && <p>Đã tải hết sản phẩm</p>}
           </div>
         </div>
       </section>

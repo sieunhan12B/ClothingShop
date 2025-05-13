@@ -21,16 +21,19 @@ const AvatarMenu = () => {
     {
       key: "1",
       label: "Thông tin cá nhân",
-      onClick: () =>
-        navigate(
-         
-        ),
+      onClick: () => navigate(),
     },
     {
       key: "2",
       label: "Đăng xuất",
       onClick: handleLogout,
     },
+    {
+      key: "4",
+      label: "Đơn hàng",
+      onClick: () => navigate(path.cartPage),
+    },
+
     {
       key: "3",
       label: "Trang quản lý ",
