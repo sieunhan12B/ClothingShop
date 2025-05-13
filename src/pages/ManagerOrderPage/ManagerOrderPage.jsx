@@ -24,80 +24,102 @@ const ManagerOrderPage = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const fetchOrders = async () => {
-    try {
-      setIsLoading(true);
-      const params = {
-        page: currentPage,
-        limit: pageSize,
-        ...(selectedStatus && { status: selectedStatus }),
-      };
+const fetchOrders = async () => {
+  try {
+    setIsLoading(true);
+    setOrders([]); // Reset dữ liệu trước khi fetch
+    setTotalItems(0); // Reset totalItems
 
-      let res;
-      if (searchKeyword) {
-        if (!isNaN(searchKeyword)) {
-          res = await donHangService.getOrderById(searchKeyword);
-          const orderData = res.data.data;
-          if (orderData.status === "cart") {
-            setOrders([]);
-            setTotalItems(0);
-            showNotification("Đơn hàng này là giỏ hàng, không được hiển thị", "warning");
-            setIsLoading(false);
-            return;
-          }
-          if (selectedStatus && orderData.status !== selectedStatus) {
-            setOrders([]);
-            setTotalItems(0);
-            showNotification("Không tìm thấy đơn hàng phù hợp với trạng thái đã chọn", "warning");
-            setIsLoading(false);
-            return;
-          }
-          res.data = {
-            data: [orderData],
-            pagination: {
-              totalItems: 1,
-              currentPage: 1,
-              pageSize: 1,
-              totalPages: 1,
-              hasNextPage: false,
-              hasPrevPage: false,
-            },
-          };
-        } else {
-          res = await donHangService.getOrderByKeyword(searchKeyword, params);
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+      ...(selectedStatus && { status: selectedStatus }),
+    };
+
+    let res;
+    if (searchKeyword) {
+      if (!isNaN(searchKeyword)) {
+        // Tìm kiếm theo ID đơn hàng
+        res = await donHangService.getOrderById(searchKeyword);
+        const orderData = res.data.data;
+        if (orderData.status === "cart") {
+          setOrders([]);
+          setTotalItems(0);
+          showNotification("Đơn hàng này là giỏ hàng, không được hiển thị", "warning");
+          setIsLoading(false);
+          return;
         }
-      } else if (selectedStatus) {
-        res = await donHangService.getOrderByStatus(selectedStatus, params);
+        if (selectedStatus && orderData.status !== selectedStatus) {
+          setOrders([]);
+          setTotalItems(0);
+          showNotification("Không tìm thấy đơn hàng phù hợp với trạng thái đã chọn", "warning");
+          setIsLoading(false);
+          return;
+        }
+        // Gán dữ liệu cho một đơn hàng duy nhất
+        setOrders([orderData]);
+        setTotalItems(1);
+        setCurrentPage(1); // Đặt lại về trang 1
+        showNotification("Tìm kiếm đơn hàng thành công", "success");
+        setIsLoading(false);
+        return;
       } else {
-        res = await donHangService.getPaginatedData({ ...params, type: "orders" });
+        // Tìm kiếm theo từ khóa
+        res = await donHangService.getOrderByKeyword(searchKeyword, params);
       }
-
-      const { data, pagination } = res.data;
-      const filteredData = Array.isArray(data) ? data.filter(order => order.status !== "cart") : [];
-
-      setOrders(filteredData);
-      setTotalItems(filteredData.length === data.length ? pagination?.totalItems || data.length : filteredData.length);
-
-      showNotification(
-        filteredData.length === 0
-          ? searchKeyword || selectedStatus
-            ? "Không có đơn hàng nào trong trạng thái này"
-            : "Không có đơn hàng nào ngoài trạng thái giỏ hàng"
-          : "Lấy danh sách đơn hàng thành công",
-        filteredData.length === 0 ? "warning" : "success"
-      );
-    } catch (err) {
-      console.error("Lỗi API:", {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-      });
-      const errorMessage = err.response?.data?.message || "Không thể lấy dữ liệu đơn hàng";
-      showNotification(errorMessage, "error");
-    } finally {
-      setIsLoading(false);
+    } else if (selectedStatus) {
+      // Lọc theo trạng thái
+      res = await donHangService.getOrderByStatus(selectedStatus, params);
+    } else {
+      // Lấy tất cả đơn hàng
+      res = await donHangService.getPaginatedData({ ...params, type: "orders" });
     }
-  };
+
+    const { data, pagination } = res.data;
+
+    // Đảm bảo dữ liệu là mảng
+    const ordersData = Array.isArray(data) ? data : [];
+    setOrders(ordersData);
+
+    // Cập nhật totalItems từ pagination hoặc số lượng dữ liệu thực tế
+    const newTotalItems = pagination?.totalItems || ordersData.length;
+    setTotalItems(newTotalItems);
+
+    // Tính totalPages và kiểm tra currentPage
+    const totalPages = Math.ceil(newTotalItems / pageSize);
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+      showNotification(`Chỉ có ${totalPages} trang, quay lại trang ${totalPages}`, "warning");
+      setIsLoading(false);
+      return;
+    }
+
+    // Hiển thị thông báo dựa trên kết quả
+    if (ordersData.length === 0) {
+      if (searchKeyword) {
+        showNotification("Không tìm thấy đơn hàng với từ khóa này", "warning");
+      } else if (selectedStatus) {
+        showNotification(`Không có đơn hàng nào trong trạng thái ${selectedStatus}`, "warning");
+      } else {
+        showNotification("Không có đơn hàng nào ngoài trạng thái giỏ hàng", "warning");
+      }
+    } else {
+      showNotification("Lấy danh sách đơn hàng thành công", "success");
+    }
+  } catch (err) {
+    console.error("Lỗi API:", {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status,
+    });
+    const errorMessage = err.response?.data?.message || "Không thể lấy dữ liệu đơn hàng";
+    showNotification(errorMessage, "error");
+    setOrders([]);
+    setTotalItems(0);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   useEffect(() => {
     const user = getLocalStorage("user");
@@ -139,12 +161,13 @@ const ManagerOrderPage = () => {
     setTotalItems(0);
   };
 
-  const handleTableChange = (pagination) => {
-    if (pagination.current !== currentPage || pagination.pageSize !== pageSize) {
-      setCurrentPage(pagination.current);
-      setPageSize(pagination.pageSize);
-    }
-  };
+ const handleTableChange = (pagination) => {
+  if (pagination.current !== currentPage || pagination.pageSize !== pageSize) {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+    setOrders([]); // Reset orders để tránh hiển thị dữ liệu cũ
+  }
+};
 
   const handleConfirmOrder = (orderId, deliveryStatus = null) => {
     const payload = deliveryStatus ? { deliveryStatus } : {};
@@ -398,18 +421,18 @@ const ManagerOrderPage = () => {
       </Modal>
 
       <Spin spinning={isLoading}>
-        <Table
-          className="w-full max-w-full overflow-hidden"
-          columns={columns}
-          dataSource={orders}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalItems,
-          }}
-          onChange={handleTableChange}
-        />
-      </Spin>
+              <Table
+                className="w-full max-w-full overflow-hidden"
+                columns={columns}
+                dataSource={orders}
+                pagination={{
+                  current: currentPage,
+                  pageSize: pageSize,
+                  total: totalItems,
+                }}
+                onChange={handleTableChange}
+              />
+            </Spin>
 
       <Modal
         title="Xác nhận trạng thái giao hàng"
